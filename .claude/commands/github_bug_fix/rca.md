@@ -1,220 +1,220 @@
 ---
-description: Analyze and document root cause for a GitHub issue
+description: 分析并记录 GitHub issue 的根本原因
 argument-hint: [github-issue-id]
 ---
 
-# Root Cause Analysis: GitHub Issue #$ARGUMENTS
+# 根本原因分析：GitHub Issue #$ARGUMENTS
 
-## Objective
+## 目标
 
-Investigate GitHub issue #$ARGUMENTS from this repository, identify the root cause, and document findings for future implementation.
+调查此仓库中的 GitHub issue #$ARGUMENTS，识别根本原因，并记录发现以供将来实施。
 
-**Prerequisites:**
-- Working in a local Git repository with GitHub origin
-- GitHub CLI installed and authenticated (`gh auth status`)
-- Valid GitHub issue ID from this repository
+**前提条件：**
+- 在具有 GitHub origin 的本地 Git 仓库中工作
+- GitHub CLI 已安装并通过身份验证（`gh auth status`）
+- 来自此仓库的有效 GitHub issue ID
 
-## Investigation Process
+## 调查流程
 
-### 1. Fetch GitHub Issue Details
+### 1. 获取 GitHub Issue 详情
 
-**Use GitHub CLI to retrieve issue information:**
+**使用 GitHub CLI 获取 issue 信息：**
 
 ```bash
 gh issue view $ARGUMENTS
 ```
 
-This fetches:
-- Issue title and description
-- Reporter and creation date
-- Labels and status
-- Comments and discussion
+这将获取：
+- Issue 标题和描述
+- 报告者和创建日期
+- 标签和状态
+- 评论和讨论
 
-### 2. Search Codebase
+### 2. 搜索代码库
 
-**Identify relevant code:**
-- Search for components mentioned in issue
-- Find related functions, classes, or modules
-- Check similar implementations
-- Look for patterns or recent changes
+**识别相关代码：**
+- 搜索 issue 中提到的组件
+- 查找相关的函数、类或模块
+- 检查类似的实现
+- 查找模式或最近的更改
 
-Use grep/search to find:
-- Error messages from issue
-- Related function names
-- Component identifiers
+使用 grep/搜索查找：
+- Issue 中的错误消息
+- 相关的函数名
+- 组件标识符
 
-### 3. Review Recent History
+### 3. 审查最近历史
 
-Check recent changes to affected areas:
-!`git log --oneline -20 -- [relevant-paths]`
+检查受影响区域的最近更改：
+!`git log --oneline -20 -- [相关路径]`
 
-Look for:
-- Recent modifications to affected code
-- Related bug fixes
-- Refactorings that might have introduced the issue
+查找：
+- 更改受影响代码的最近修改
+- 相关的 bug 修复
+- 可能引入此问题的重构
 
-### 4. Investigate Root Cause
+### 4. 调查根本原因
 
-**Analyze the code to determine:**
-- What is the actual bug or issue?
-- Why is it happening?
-- What was the original intent?
-- Is this a logic error, edge case, or missing validation?
-- Are there related issues or symptoms?
+**分析代码以确定：**
+- 实际的问题或错误是什么？
+- 为什么会发生？
+- 原始意图是什么？
+- 这是逻辑错误、边界情况还是缺少验证？
+- 是否有相关的问题或症状？
 
-**Consider:**
-- Input validation failures
-- Edge cases not handled
-- Race conditions or timing issues
-- Incorrect assumptions
-- Missing error handling
-- Integration issues between components
+**考虑：**
+- 输入验证失败
+- 未处理的边界情况
+- 竞态条件或时序问题
+- 不正确的假设
+- 缺少错误处理
+- 组件之间的集成问题
 
-### 5. Assess Impact
+### 5. 评估影响
 
-**Determine:**
-- How widespread is this issue?
-- What features are affected?
-- Are there workarounds?
-- What is the severity?
-- Could this cause data corruption or security issues?
+**确定：**
+- 这个问题有多普遍？
+- 哪些功能受到影响？
+- 是否有变通方案？
+- 严重程度如何？
+- 这可能导致数据损坏或安全问题吗？
 
-### 6. Propose Fix Approach
+### 6. 提出修复方案
 
-**Design the solution:**
-- What needs to be changed?
-- Which files will be modified?
-- What is the fix strategy?
-- Are there alternative approaches?
-- What testing is needed?
-- Are there any risks or side effects?
+**设计解决方案：**
+- 需要更改什么？
+- 哪些文件将被修改？
+- 修复策略是什么？
+- 是否有替代方法？
+- 需要什么测试？
+- 是否有任何风险或副作用？
 
-## Output: Create RCA Document
+## 输出：创建 RCA 文档
 
-Save analysis as: `docs/rca/issue-$ARGUMENTS.md`
+将分析保存为：`docs/rca/issue-$ARGUMENTS.md`
 
-### Required RCA Document Structure
+### 必需的 RCA 文档结构
 
 ```markdown
-# Root Cause Analysis: GitHub Issue #$ARGUMENTS
+# 根本原因分析：GitHub Issue #$ARGUMENTS
 
-## Issue Summary
+## Issue 摘要
 
-- **GitHub Issue ID**: #$ARGUMENTS
-- **Issue URL**: [Link to GitHub issue]
-- **Title**: [Issue title from GitHub]
-- **Reporter**: [GitHub username]
-- **Severity**: [Critical/High/Medium/Low]
-- **Status**: [Current GitHub issue status]
+- **GitHub Issue ID**：#$ARGUMENTS
+- **Issue URL**：[GitHub issue 链接]
+- **标题**：[来自 GitHub 的 issue 标题]
+- **报告者**：[GitHub 用户名]
+- **严重程度**：[严重/高/中/低]
+- **状态**：[当前 GitHub issue 状态]
 
-## Problem Description
+## 问题描述
 
-[Clear description of the issue]
+[问题的清晰描述]
 
-**Expected Behavior:**
-[What should happen]
+**预期行为：**
+[应该发生什么]
 
-**Actual Behavior:**
-[What actually happens]
+**实际行为：**
+[实际发生什么]
 
-**Symptoms:**
-- [List observable symptoms]
+**症状：**
+- [可观察症状列表]
 
-## Reproduction
+## 复现
 
-**Steps to Reproduce:**
-1. [Step 1]
-2. [Step 2]
-3. [Observe issue]
+**复现步骤：**
+1. [步骤 1]
+2. [步骤 2]
+3. [观察问题]
 
-**Reproduction Verified:** [Yes/No]
+**已验证复现**：[是/否]
 
-## Root Cause
+## 根本原因
 
-### Affected Components
+### 受影响的组件
 
-- **Files**: [List of affected files with paths]
-- **Functions/Classes**: [Specific code locations]
-- **Dependencies**: [Any external deps involved]
+- **文件**：[受影响文件的路径列表]
+- **函数/类**：[具体代码位置]
+- **依赖项**：[任何涉及的外部依赖]
 
-### Analysis
+### 分析
 
-[Detailed explanation of the root cause]
+[根本原因的详细解释]
 
-**Why This Occurs:**
-[Explanation of the underlying issue]
+**为什么会发生：**
+[对底层问题的解释]
 
-**Code Location:**
+**代码位置：**
 ```
-[File path:line number]
-[Relevant code snippet showing the issue]
+[文件路径:行号]
+[显示问题的相关代码片段]
 ```
 
-### Related Issues
+### 相关问题
 
-- [Any related issues or patterns]
+- [任何相关问题或模式]
 
-## Impact Assessment
+## 影响评估
 
-**Scope:**
-- [How widespread is this?]
+**范围：**
+-[这有多普遍？]
 
-**Affected Features:**
-- [List affected features]
+**受影响的功能：**
+- [受影响的功能列表]
 
-**Severity Justification:**
-[Why this severity level]
+**严重程度理由：**
+[为什么是这个严重程度]
 
-**Data/Security Concerns:**
-[Any data corruption or security implications]
+**数据/安全问题：**
+[任何数据损坏或安全影响]
 
-## Proposed Fix
+## 建议修复
 
-### Fix Strategy
+### 修复策略
 
-[High-level approach to fixing]
+[修复的高级方法]
 
-### Files to Modify
+### 要修改的文件
 
-1. **[file-path]**
-   - Changes: [What needs to change]
-   - Reason: [Why this change fixes it]
+1. **[文件路径]**
+   - 更改：[需要更改什么]
+   - 原因：[为什么这个更改能修复它]
 
-2. **[file-path]**
-   - Changes: [What needs to change]
-   - Reason: [Why this change fixes it]
+2. **[文件路径]**
+   - 更改：[需要更改什么]
+   - 原因：[为什么这个更改能修复它]
 
-### Alternative Approaches
+### 替代方法
 
-[Other possible solutions and why the proposed approach is better]
+[其他可能的解决方案以及为什么建议的方法更好]
 
-### Risks and Considerations
+### 风险和注意事项
 
-- [Any risks with this fix]
-- [Side effects to watch for]
-- [Breaking changes if any]
+- [此修复的任何风险]
+- [要关注的副作用]
+- [如有破坏性更改]
 
-### Testing Requirements
+### 测试要求
 
-**Test Cases Needed:**
-1. [Test case 1 - verify fix works]
-2. [Test case 2 - verify no regression]
-3. [Test case 3 - edge cases]
+**需要的测试用例：**
+1. [测试用例 1 - 验证修复有效]
+2. [测试用例 2 - 验证无回归]
+3. [测试用例 3 - 边界情况]
 
-**Validation Commands:**
+**验证命令：**
 ```bash
-[Exact commands to verify fix]
+[验证修复的确切命令]
 ```
 
-## Implementation Plan
+## 实施计划
 
-[Brief overview of implementation steps]
+[实施步骤的简要概述]
 
-This RCA document should be used by `/implement-fix` command.
+此 RCA 文档应由 `/implement-fix` 命令使用。
 
-## Next Steps
+## 后续步骤
 
-1. Review this RCA document
-2. Run: `/implement-fix $ARGUMENTS` to implement the fix
-3. Run: `/commit` after implementation complete
+1. 审查此 RCA 文档
+2. 运行：`/implement-fix $ARGUMENTS` 来实施修复
+3. 实施完成后运行：`/commit`
 ```

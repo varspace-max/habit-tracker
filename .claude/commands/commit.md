@@ -1,7 +1,5 @@
-Create a new commit for all of our uncommitted changes
-run git status && git diff HEAD && git status --porcelain to see what files are uncommitted
-add the untracked and changed files
+为我们的所有未提交更改创建新提交
+运行 git status && git diff HEAD && git status --porcelain 查看哪些文件未提交
+添加未跟踪和已更改的文件
 
-Add an atomic commit message with an appropriate message
-
-add a tag such as "feat", "fix", "docs", etc. that reflects our work
+添加带有适当标签（如 "feat"、"fix"、"docs" 等）的原子提交消息，反映我们的工作

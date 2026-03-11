@@ -1,55 +1,55 @@
-# Testing & Logging Best Practices Reference
+# 测试与日志最佳实践参考指南
 
-A concise reference guide for structured logging with structlog and comprehensive testing strategies.
-
----
-
-## Table of Contents
-
-**Part 1: Logging with structlog**
-1. [Why structlog](#1-why-structlog)
-2. [Configuration](#2-configuration)
-3. [FastAPI Integration](#3-fastapi-integration)
-4. [Context Binding](#4-context-binding)
-5. [Exception Logging](#5-exception-logging)
-6. [Testing with structlog](#6-testing-with-structlog)
-
-**Part 2: Testing Strategy**
-7. [Testing Pyramid](#7-testing-pyramid)
-8. [Unit Testing (Python)](#8-unit-testing-python)
-9. [Integration Testing (FastAPI)](#9-integration-testing-fastapi)
-10. [React Component Testing](#10-react-component-testing)
-11. [E2E Testing with Playwright](#11-e2e-testing-with-playwright)
-12. [Test Organization](#12-test-organization)
+结构化日志（structlog）和综合测试策略的简明参考指南。
 
 ---
 
-# Part 1: Logging with structlog
+## 目录
 
-## 1. Why structlog
+**第一部分：使用 structlog 进行日志记录**
+1. [为什么选择 structlog](#1-为什么选择-structlog)
+2. [配置](#2-配置)
+3. [FastAPI 集成](#3-fastapi-集成)
+4. [上下文绑定](#4-上下文绑定)
+5. [异常日志记录](#5-异常日志记录)
+6. [使用 structlog 进行测试](#6-使用-structlog-进行测试)
 
-### Advantages Over Standard Logging
+**第二部分：测试策略**
+7. [测试金字塔](#7-测试金字塔)
+8. [单元测试 (Python)](#8-单元测试-python)
+9. [集成测试 (FastAPI)](#9-集成测试-fastapi)
+10. [React 组件测试](#10-react-组件测试)
+11. [使用 Playwright 进行 E2E 测试](#11-使用-playwright-进行-e2e-测试)
+12. [测试组织](#12-测试组织)
 
-| Feature | Standard logging | structlog |
+---
+
+# 第一部分：使用 structlog 进行日志记录
+
+## 1. 为什么选择 structlog
+
+### 相比标准日志的优势
+
+| 特性 | 标准日志 | structlog |
 |---------|------------------|-----------|
-| Output format | Plain text | Structured key-value pairs |
-| Context | Manual per-call | Bound loggers carry context |
-| Configuration | Complex hierarchy | Declarative processor chains |
-| JSON output | Requires custom formatter | Built-in |
-| Performance | Good | Excellent with caching |
+| 输出格式 | 纯文本 | 结构化键值对 |
+| 上下文 | 每次调用手动添加 | 绑定日志器携带上下文 |
+| 配置 | 复杂的层级结构 | 声明式处理器链 |
+| JSON 输出 | 需要自定义格式化器 | 内置支持 |
+| 性能 | 良好 | 启用缓存后极佳 |
 
-### Key Benefits
+### 主要优势
 
-- **Structured data**: Logs as key-value pairs for easy parsing
-- **Bound loggers**: Add context once, appears in all subsequent logs
-- **Processor pipelines**: Transform logs through composable functions
-- **Environment-aware**: Pretty console for dev, JSON for production
+- **结构化数据**：日志以键值对形式输出，便于解析
+- **绑定日志器**：一次性添加上下文，会自动出现在所有后续日志中
+- **处理器管道**：通过可组合函数转换日志
+- **环境感知**：开发环境使用美化控制台输出，生产环境使用 JSON
 
 ---
 
-## 2. Configuration
+## 2. 配置
 
-### Basic Setup
+### 基础设置
 
 ```python
 # app/logging_config.py
@@ -88,7 +88,7 @@ def configure_logging(json_format: bool = False):
     )
 ```
 
-### Environment-Based Configuration
+### 基于环境的配置
 
 ```python
 import os
@@ -104,7 +104,7 @@ def configure_logging():
     configure_logging(json_format=use_json)
 ```
 
-### Initialize in FastAPI
+### 在 FastAPI 中初始化
 
 ```python
 # app/main.py
@@ -122,9 +122,9 @@ app = FastAPI(lifespan=lifespan)
 
 ---
 
-## 3. FastAPI Integration
+## 3. FastAPI 集成
 
-### Request Logging Middleware
+### 请求日志中间件
 
 ```python
 # app/middleware.py
@@ -173,7 +173,7 @@ class LoggingMiddleware(BaseHTTPMiddleware):
             raise
 ```
 
-### Add Middleware to App
+### 向应用添加中间件
 
 ```python
 # app/main.py
@@ -184,9 +184,9 @@ app.add_middleware(LoggingMiddleware)
 
 ---
 
-## 4. Context Binding
+## 4. 上下文绑定
 
-### Request-Scoped Context
+### 请求级别的上下文
 
 ```python
 import structlog
@@ -204,7 +204,7 @@ logger.info("Processing request")  # Includes request_id, user_id, path
 logger.info("Fetching data")       # Same context
 ```
 
-### Temporary Context
+### 临时上下文
 
 ```python
 # Add temporary context for a code block
@@ -215,7 +215,7 @@ with structlog.contextvars.bound_contextvars(operation="streak_calculation"):
 # Context is restored after the block
 ```
 
-### Per-Logger Binding
+### 逐日志器绑定
 
 ```python
 # Create a logger with bound context
@@ -229,9 +229,9 @@ logger.info("Service started")  # Includes component, version
 
 ---
 
-## 5. Exception Logging
+## 5. 异常日志记录
 
-### Logging Exceptions
+### 记录异常
 
 ```python
 logger = structlog.get_logger()
@@ -246,21 +246,21 @@ except Exception:
     logger.exception("Operation failed")
 ```
 
-### Structured Exception Output
+### 结构化异常输出
 
-For JSON logging, configure `dict_tracebacks` processor:
+对于 JSON 日志记录，配置 `dict_tracebacks` 处理器：
 
 ```python
 structlog.processors.dict_tracebacks
 ```
 
-This produces JSON-serializable exception data instead of multiline strings.
+这会生成 JSON 可序列化的异常数据，而不是多行字符串。
 
 ---
 
-## 6. Testing with structlog
+## 6. 使用 structlog 进行测试
 
-### Using capture_logs
+### 使用 capture_logs
 
 ```python
 import structlog
@@ -311,40 +311,40 @@ def test_service_logs_correctly(log_output):
 
 ---
 
-# Part 2: Testing Strategy
+# 第二部分：测试策略
 
-## 7. Testing Pyramid
+## 7. 测试金字塔
 
-### Distribution
+### 分布
 
-| Layer | Percentage | Speed | Scope |
+| 层级 | 占比 | 速度 | 范围 |
 |-------|------------|-------|-------|
-| Unit | 70% | ms | Single function/class |
-| Integration | 20% | seconds | Multiple components |
-| E2E | 10% | minutes | Full system |
+| 单元测试 | 70% | 毫秒级 | 单个函数/类 |
+| 集成测试 | 20% | 秒级 | 多个组件 |
+| E2E 测试 | 10% | 分钟级 | 完整系统 |
 
-### What Belongs Where
+### 什么测试应该放在哪里
 
-**Unit Tests:**
-- Pure functions (streak calculation, date utilities)
-- Pydantic validators
-- Business logic with mocked dependencies
+**单元测试：**
+- 纯函数（连续天数计算、日期工具函数）
+- Pydantic 验证器
+- 使用模拟依赖的业务逻辑
 
-**Integration Tests:**
-- API endpoints with real database
-- Repository operations
-- Service layer with real dependencies
+**集成测试：**
+- 使用真实数据库的 API 端点
+- 仓储层操作
+- 使用真实依赖的服务层
 
-**E2E Tests:**
-- Critical user journeys only
-- Full frontend + backend interaction
-- Visual regression testing
+**E2E 测试：**
+- 仅关键的用户流程
+- 完整的前端 + 后端交互
+- 视觉回归测试
 
 ---
 
-## 8. Unit Testing (Python)
+## 8. 单元测试 (Python)
 
-### Structure
+### 结构
 
 ```python
 # tests/unit/test_streak_calculator.py
@@ -372,7 +372,7 @@ class TestStreakCalculation:
         assert result == 1  # Only Jan 3 counts
 ```
 
-### Parametrized Tests
+### 参数化测试
 
 ```python
 @pytest.mark.parametrize("completions,expected", [
@@ -385,7 +385,7 @@ def test_streak_calculation(completions, expected):
     assert calculate_streak(completions) == expected
 ```
 
-### Mocking
+### 模拟
 
 ```python
 from unittest.mock import Mock, patch
@@ -403,9 +403,9 @@ def test_service_calls_repository():
 
 ---
 
-## 9. Integration Testing (FastAPI)
+## 9. 集成测试 (FastAPI)
 
-### Test Setup
+### 测试设置
 
 ```python
 # tests/conftest.py
@@ -452,7 +452,7 @@ def client(db_session):
     app.dependency_overrides.clear()
 ```
 
-### API Tests
+### API 测试
 
 ```python
 # tests/integration/test_api_habits.py
@@ -492,7 +492,7 @@ class TestHabitAPI:
         assert response.status_code == 404
 ```
 
-### Database Isolation with Transactions
+### 使用事务实现数据库隔离
 
 ```python
 @pytest.fixture
@@ -511,9 +511,9 @@ def db_session():
 
 ---
 
-## 10. React Component Testing
+## 10. React 组件测试
 
-### Setup with Vitest
+### 使用 Vitest 进行设置
 
 ```javascript
 // vite.config.js
@@ -530,7 +530,7 @@ export default defineConfig({
 import '@testing-library/jest-dom';
 ```
 
-### Component Tests
+### 组件测试
 
 ```javascript
 // src/features/habits/__tests__/HabitCard.test.jsx
@@ -576,7 +576,7 @@ describe('HabitCard', () => {
 });
 ```
 
-### Testing with Providers
+### 使用 Providers 进行测试
 
 ```javascript
 // src/test/utils.jsx
@@ -600,34 +600,34 @@ export function renderWithProviders(ui) {
 }
 ```
 
-### Query Priority (Use in Order)
+### 查询优先级（按顺序使用）
 
-1. `getByRole` - Accessible name (best)
-2. `getByLabelText` - Form labels
-3. `getByText` - Text content
-4. `getByTestId` - Last resort
+1. `getByRole` - 可访问名称（最佳）
+2. `getByLabelText` - 表单标签
+3. `getByText` - 文本内容
+4. `getByTestId` - 最后手段
 
 ```javascript
-// Preferred
+// 推荐
 screen.getByRole('button', { name: /submit/i });
 screen.getByLabelText('Email');
 
-// Avoid
+// 避免
 screen.getByTestId('submit-button');  // Only when necessary
 ```
 
 ---
 
-## 11. E2E Testing with Playwright
+## 11. 使用 Playwright 进行 E2E 测试
 
-### Playwright MCP Server Setup
+### Playwright MCP 服务器设置
 
 ```bash
 # Add Playwright MCP to Claude Code
 claude mcp add playwright npx @playwright/mcp@latest
 ```
 
-### Configuration
+### 配置
 
 ```javascript
 // playwright.config.js
@@ -652,7 +652,7 @@ export default defineConfig({
 });
 ```
 
-### Page Object Model
+### 页面对象模型
 
 ```javascript
 // tests/e2e/pages/DashboardPage.js
@@ -685,7 +685,7 @@ export class DashboardPage {
 }
 ```
 
-### E2E Tests
+### E2E 测试
 
 ```javascript
 // tests/e2e/habits.spec.js
@@ -715,7 +715,7 @@ test.describe('Habit Tracking', () => {
 });
 ```
 
-### Visual Testing
+### 视觉测试
 
 ```javascript
 test('dashboard matches snapshot', async ({ page }) => {
@@ -731,7 +731,7 @@ test('dashboard matches snapshot', async ({ page }) => {
 });
 ```
 
-### Running E2E Tests
+### 运行 E2E 测试
 
 ```bash
 # Run all E2E tests
@@ -749,9 +749,9 @@ npx playwright test --update-snapshots
 
 ---
 
-## 12. Test Organization
+## 12. 测试组织
 
-### Directory Structure
+### 目录结构
 
 ```
 tests/
@@ -783,7 +783,7 @@ frontend/
         └── utils.jsx
 ```
 
-### Pytest Markers
+### Pytest 标记
 
 ```ini
 # pytest.ini
@@ -811,7 +811,7 @@ pytest -m integration
 pytest -m "not slow"
 ```
 
-### Coverage Configuration
+### 覆盖率配置
 
 ```toml
 # pyproject.toml
@@ -834,9 +834,9 @@ pytest --cov=app --cov-report=html --cov-report=term-missing
 
 ---
 
-## Quick Reference
+## 快速参考
 
-### Test Commands
+### 测试命令
 
 ```bash
 # Backend
@@ -859,7 +859,7 @@ npx playwright test --ui            # UI mode
 npx playwright test --debug         # Debug mode
 ```
 
-### Assertion Cheatsheet
+### 断言速查表
 
 ```python
 # Pytest
@@ -889,11 +889,11 @@ await expect(page).toHaveScreenshot();
 
 ---
 
-## Resources
+## 资源
 
-- [structlog Documentation](https://www.structlog.org/)
-- [pytest Documentation](https://docs.pytest.org/)
-- [FastAPI Testing](https://fastapi.tiangolo.com/tutorial/testing/)
+- [structlog 文档](https://www.structlog.org/)
+- [pytest 文档](https://docs.pytest.org/)
+- [FastAPI 测试](https://fastapi.tiangolo.com/tutorial/testing/)
 - [React Testing Library](https://testing-library.com/docs/react-testing-library/intro/)
-- [Playwright Documentation](https://playwright.dev/)
+- [Playwright 文档](https://playwright.dev/)
 - [Playwright MCP](https://github.com/microsoft/playwright-mcp)

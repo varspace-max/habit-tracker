@@ -1,8 +1,8 @@
-Run comprehensive validation of the project.
+运行项目的全面验证。
 
-Execute the following commands in sequence and report results:
+按顺序执行以下命令并报告结果：
 
-## 1. Linting
+## 1. 代码检查（Linting）
 
 ```bash
 # Python (ruff):
@@ -12,9 +12,9 @@ cd backend && uv run ruff check .
 cd frontend && npm run lint
 ```
 
-**Expected:** No linting errors
+**预期：** 无 linting 错误
 
-## 2. Type Checking (if applicable)
+## 2. 类型检查（如适用）
 
 ```bash
 # Python (mypy):
@@ -24,9 +24,9 @@ cd backend && uv run mypy app/
 cd frontend && npm run typecheck
 ```
 
-**Expected:** No type errors
+**预期：** 无类型错误
 
-## 3. Unit Tests
+## 3. 单元测试
 
 ```bash
 # Python (pytest):
@@ -36,9 +36,9 @@ cd backend && uv run pytest -v
 cd frontend && npm test
 ```
 
-**Expected:** All tests pass
+**预期：** 所有测试通过
 
-## 4. Test Coverage
+## 4. 测试覆盖率
 
 ```bash
 # Python:
@@ -48,26 +48,26 @@ cd backend && uv run pytest --cov=app --cov-report=term-missing
 cd frontend && npm run test:coverage
 ```
 
-**Expected:** Coverage meets project threshold
+**预期：** 覆盖率满足项目阈值
 
-## 5. Build
+## 5. 构建
 
 ```bash
 cd frontend && npm run build
 ```
 
-**Expected:** Build completes successfully
+**预期：** 构建成功完成
 
-## 6. Summary Report
+## 6. 总结报告
 
-After all validations complete, provide a summary report with:
+所有验证完成后，提供包含以下内容的总结报告：
 
-- Linting status
-- Type checking status (if applicable)
-- Tests passed/failed
-- Coverage percentage
-- Build status
-- Any errors or warnings encountered
-- Overall health assessment (PASS/FAIL)
+- Linting 状态
+- 类型检查状态（如适用）
+- 测试通过/失败
+- 覆盖率百分比
+- 构建状态
+- 遇到的任何错误或警告
+- 整体健康评估（通过/失败）
 
-**Format the report clearly with sections and status indicators**
+**使用清晰的部分和状态指示符格式化报告**

@@ -1,32 +1,32 @@
 ---
-description: Technical code review for quality and bugs that runs pre-commit
+description: 运行预提交的技术代码审查以检查质量和 bug
 ---
 
-Perform technical code review on recently changed files.
+对最近更改的文件进行技术代码审查。
 
-## Core Principles
+## 核心原则
 
-Review Philosophy:
+审查哲学：
 
-- Simplicity is the ultimate sophistication - every line should justify its existence
-- Code is read far more often than it's written - optimize for readability
-- The best code is often the code you don't write
-- Elegance emerges from clarity of intent and economy of expression
+- 简单是终极的复杂 - 每一行都应该证明其存在的合理性
+- 代码被阅读的次数远多于被编写的次数 - 为可读性优化
+- 最好的代码通常是你不写的代码
+- 优雅源于意图的清晰和表达的简洁
 
-## What to Review
+## 审查什么
 
-Start by gathering codebase context to understand the codebase standards and patterns.
+首先收集代码库上下文以了解代码库标准和模式。
 
-Start by examining:
+首先检查：
 
 - CLAUDE.md
 - README.md
-- Key files in the /core module
-- Documented standards in the /docs directory
+- /core 模块中的关键文件
+- /docs 目录中的文档标准
 
-After you have a good understanding
+在充分理解之后
 
-Run these commands:
+运行这些命令：
 
 ```bash
 git status
@@ -34,80 +34,80 @@ git diff HEAD
 git diff --stat HEAD
 ```
 
-Then check the list of new files:
+然后检查新文件列表：
 
 ```bash
 git ls-files --others --exclude-standard
 ```
 
-Read each new file in its entirety. Read each changed file in its entirety (not just the diff) to understand full context.
+完整阅读每个新文件。完整阅读每个更改的文件（不仅是 diff）以了解完整上下文。
 
-For each changed file or new file, analyze for:
+对于每个更改的文件或新文件，分析以下内容：
 
-1. **Logic Errors**
-   - Off-by-one errors
-   - Incorrect conditionals
-   - Missing error handling
-   - Race conditions
+1. **逻辑错误**
+   - 差一错误
+   - 条件判断错误
+   - 缺少错误处理
+   - 竞态条件
 
-2. **Security Issues**
-   - SQL injection vulnerabilities
-   - XSS vulnerabilities
-   - Insecure data handling
-   - Exposed secrets or API keys
+2. **安全问题**
+   - SQL 注入漏洞
+   - XSS 漏洞
+   - 不安全的数据处理
+   - 暴露的密钥或 API 密钥
 
-3. **Performance Problems**
-   - N+1 queries
-   - Inefficient algorithms
-   - Memory leaks
-   - Unnecessary computations
+3. **性能问题**
+   - N+1 查询
+   - 低效算法
+   - 内存泄漏
+   - 不必要的计算
 
-4. **Code Quality**
-   - Violations of DRY principle
-   - Overly complex functions
-   - Poor naming
-   - Missing type hints/annotations
+4. **代码质量**
+   - 违反 DRY 原则
+   - 函数过于复杂
+   - 命名不当
+   - 缺少类型提示/注解
 
-5. **Adherence to Codebase Standards and Existing Patterns**
-   - Adherence to standards documented in the /docs directory
-   - Linting, typing, and formatting standards
-   - Logging standards
-   - Testing standards
+5. **遵守代码库标准和现有模式**
+   - 遵守 /docs 目录中记录的标准
+   - Linting、类型检查和格式化标准
+   - 日志标准
+   - 测试标准
 
-## Verify Issues Are Real
+## 验证问题是否真实
 
-- Run specific tests for issues found
-- Confirm type errors are legitimate
-- Validate security concerns with context
+- 运行发现问题的具体测试
+- 确认类型错误是合法的
+- 根据上下文验证安全问题
 
-## Output Format
+## 输出格式
 
-Save a new file to `.agents/code-reviews/[appropriate-name].md`
+保存新文件到 `.agents/code-reviews/[适当名称].md`
 
-**Stats:**
+**统计：**
 
-- Files Modified: 0
-- Files Added: 0
-- Files Deleted: 0
-- New lines: 0
-- Deleted lines: 0
+- 修改的文件：0
+- 添加的文件：0
+- 删除的文件：0
+- 新增行数：0
+- 删除行数：0
 
-**For each issue found:**
+**对于每个发现的问题：**
 
 ```
-severity: critical|high|medium|low
-file: path/to/file.py
-line: 42
-issue: [one-line description]
-detail: [explanation of why this is a problem]
-suggestion: [how to fix it]
+严重程度：critical|high|medium|low
+文件：path/to/file.py
+行号：42
+问题：[一行描述]
+详情：[解释为什么这是一个问题]
+建议：[如何修复]
 ```
 
-If no issues found: "Code review passed. No technical issues detected."
+如果没有发现问题："代码审查通过。未检测到技术问题。"
 
-## Important
+## 重要
 
-- Be specific (line numbers, not vague complaints)
-- Focus on real bugs, not style
-- Suggest fixes, don't just complain
-- Flag security issues as CRITICAL
+- 具体（行号，而非模糊的投诉）
+- 关注真正的 bug，而非风格
+- 建议修复，而不仅仅是抱怨
+- 将安全问题标记为严重

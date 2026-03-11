@@ -1,72 +1,72 @@
 ---
-description: Generate implementation report for system review
+description: 生成系统审查的实施报告
 ---
 
-# Execution Report
+# 实施报告
 
-Review and deeply analyze the implementation you just completed.
+回顾并深入分析您刚刚完成的功能实施。
 
-## Context
+## 上下文
 
-You have just finished implementing a feature. Before moving on, reflect on:
+您刚刚完成了一个功能的实施。在继续之前，反思：
 
-- What you implemented
-- How it aligns with the plan
-- What challenges you encountered
-- What diverged and why
+- 您实施了了什么
+- 它如何与计划保持一致
+- 您遇到了什么挑战
+- 什么发生了偏离以及为什么
 
-## Generate Report
+## 生成报告
 
-Save to: `.agents/execution-reports/[feature-name].md`
+保存到：`.agents/execution-reports/[功能名称].md`
 
-### Meta Information
+### 元信息
 
-- Plan file: [path to plan that guided this implementation]
-- Files added: [list with paths]
-- Files modified: [list with paths]
-- Lines changed: +X -Y
+- 计划文件：[指导此实施的计划文件路径]
+- 添加的文件：[带路径的列表]
+- 修改的文件：[带路径的列表]
+- 更改的行数：+X -Y
 
-### Validation Results
+### 验证结果
 
-- Syntax & Linting: ✓/✗ [details if failed]
-- Type Checking: ✓/✗ [details if failed]
-- Unit Tests: ✓/✗ [X passed, Y failed]
-- Integration Tests: ✓/✗ [X passed, Y failed]
+- 语法与 Linting：✓/✗ [失败详情]
+- 类型检查：✓/✗ [失败详情]
+- 单元测试：✓/✗ [X 通过，Y 失败]
+- 集成测试：✓/✗ [X 通过，Y 失败]
 
-### What Went Well
+### 进展顺利
 
-List specific things that worked smoothly:
+列出具体顺利进展的事情：
 
-- [concrete examples]
+- [具体示例]
 
-### Challenges Encountered
+### 遇到的挑战
 
-List specific difficulties:
+列出具体困难：
 
-- [what was difficult and why]
+- [困难的是什么以及为什么]
 
-### Divergences from Plan
+### 与计划的偏离
 
-For each divergence, document:
+对于每个偏离，记录：
 
-**[Divergence Title]**
+**[偏离标题]**
 
-- Planned: [what the plan specified]
-- Actual: [what was implemented instead]
-- Reason: [why this divergence occurred]
-- Type: [Better approach found | Plan assumption wrong | Security concern | Performance issue | Other]
+- 计划： [计划指定的内容]
+- 实际： [实际实施的内容]
+- 原因： [为什么发生此偏离]
+- 类型： [找到更好的方法 | 计划假设错误 | 安全问题 | 性能问题 | 其他]
 
-### Skipped Items
+### 跳过的项目
 
-List anything from the plan that was not implemented:
+列出计划中未实施的任何内容：
 
-- [what was skipped]
-- Reason: [why it was skipped]
+- [跳过的内容]
+- 原因：[为什么跳过]
 
-### Recommendations
+### 建议
 
-Based on this implementation, what should change for next time?
+基于此次实施，下次应该有什么改变？
 
-- Plan command improvements: [suggestions]
-- Execute command improvements: [suggestions]
-- CLAUDE.md additions: [suggestions]
+- 计划命令改进：[建议]
+- 执行命令改进：[建议]
+- CLAUDE.md 添加：[建议]

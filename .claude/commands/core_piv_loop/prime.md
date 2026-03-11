@@ -1,73 +1,73 @@
 ---
-description: Prime agent with codebase understanding
+description: 用代码库理解来启动代理
 ---
 
-# Prime: Load Project Context
+# 启动：加载项目上下文
 
-## Objective
+## 目标
 
-Build comprehensive understanding of the codebase by analyzing structure, documentation, and key files.
+通过分析结构、文档和关键文件，建立对代码库的全面理解。
 
-## Process
+## 流程
 
-### 1. Analyze Project Structure
+### 1. 分析项目结构
 
-List all tracked files:
+列出所有跟踪的文件：
 !`git ls-files`
 
-Show directory structure:
-On Linux, run: `tree -L 3 -I 'node_modules|__pycache__|.git|dist|build'`
+显示目录结构：
+在 Linux 上，运行：`tree -L 3 -I 'node_modules|__pycache__|.git|dist|build'`
 
-### 2. Read Core Documentation
+### 2. 阅读核心文档
 
-- Read CLAUDE.md or similar global rules file
-- Read README files at project root and major directories
-- Read any architecture documentation
+- 阅读 CLAUDE.md 或类似的全局规则文件
+- 阅读项目根目录和主要目录中的 README 文件
+- 阅读任何架构文档
 
-### 3. Identify Key Files
+### 3. 识别关键文件
 
-Based on the structure, identify and read:
-- Main entry points (main.py, index.ts, app.py, etc.)
-- Core configuration files (pyproject.toml, package.json, tsconfig.json)
-- Key model/schema definitions
-- Important service or controller files
+根据结构，识别并阅读：
+- 主要入口点（main.py、index.ts、app.py 等）
+- 核心配置文件（pyproject.toml、package.json、tsconfig.json）
+- 重要的模型/schema 定义
+- 重要的服务或控制器文件
 
-### 4. Understand Current State
+### 4. 了解当前状态
 
-Check recent activity:
+检查最近的活动：
 !`git log -10 --oneline`
 
-Check current branch and status:
+检查当前分支和状态：
 !`git status`
 
-## Output Report
+## 输出报告
 
-Provide a concise summary covering:
+提供涵盖以下内容的简洁总结：
 
-### Project Overview
-- Purpose and type of application
-- Primary technologies and frameworks
-- Current version/state
+### 项目概述
+- 应用程序的目的和类型
+- 主要技术和框架
+- 当前版本/状态
 
-### Architecture
-- Overall structure and organization
-- Key architectural patterns identified
-- Important directories and their purposes
+### 架构
+- 整体结构和组织
+- 识别的关键架构模式
+- 重要目录及其用途
 
-### Tech Stack
-- Languages and versions
-- Frameworks and major libraries
-- Build tools and package managers
-- Testing frameworks
+### 技术栈
+- 语言和版本
+- 框架和主要库
+- 构建工具和包管理器
+- 测试框架
 
-### Core Principles
-- Code style and conventions observed
-- Documentation standards
-- Testing approach
+### 核心原则
+- 观察到的代码风格和约定
+- 文档标准
+- 测试方法
 
-### Current State
-- Active branch
-- Recent changes or development focus
-- Any immediate observations or concerns
+### 当前状态
+- 活动分支
+- 最近的更改或开发重点
+- 任何即时的观察或问题
 
-**Make this summary easy to scan - use bullet points and clear headers.**
+**使这个总结易于扫描 - 使用项目符号和清晰的标题。**

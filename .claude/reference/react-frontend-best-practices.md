@@ -1,30 +1,30 @@
-# React Frontend Best Practices Reference
+# React 前端最佳实践参考
 
-A concise reference guide for building modern React applications with Vite and Tailwind CSS.
-
----
-
-## Table of Contents
-
-1. [Project Structure](#1-project-structure)
-2. [Component Design](#2-component-design)
-3. [State Management](#3-state-management)
-4. [Data Fetching](#4-data-fetching)
-5. [Forms & Validation](#5-forms--validation)
-6. [Styling with Tailwind](#6-styling-with-tailwind)
-7. [Performance](#7-performance)
-8. [Hooks Patterns](#8-hooks-patterns)
-9. [Routing](#9-routing)
-10. [Error Handling](#10-error-handling)
-11. [Testing](#11-testing)
-12. [Accessibility](#12-accessibility)
-13. [Anti-Patterns](#13-anti-patterns)
+使用 Vite 和 Tailwind CSS 构建现代 React 应用程序的简明参考指南。
 
 ---
 
-## 1. Project Structure
+## 目录
 
-### Feature-Based Structure (Recommended)
+1. [项目结构](#1-项目结构)
+2. [组件设计](#2-组件设计)
+3. [状态管理](#3-状态管理)
+4. [数据获取](#4-数据获取)
+5. [表单与验证](#5-表单与验证)
+6. [Tailwind 样式](#6-tailwind-样式)
+7. [性能优化](#7-性能优化)
+8. [Hooks 模式](#8-hooks-模式)
+9. [路由](#9-路由)
+10. [错误处理](#10-错误处理)
+11. [测试](#11-测试)
+12. [无障碍访问](#12-无障碍访问)
+13. [反模式](#13-反模式)
+
+---
+
+## 1. 项目结构
+
+### 基于功能的结构（推荐）
 
 ```
 src/
@@ -38,12 +38,12 @@ src/
 │   │   │   └── useHabits.js
 │   │   ├── api/
 │   │   │   └── habits.js
-│   │   └── index.js           # Public exports
+│   │   └── index.js           # 公共导出
 │   └── calendar/
 │       ├── components/
 │       ├── hooks/
 │       └── index.js
-├── components/                 # Shared/common components
+├── components/                 # 共享/通用组件
 │   ├── ui/
 │   │   ├── Button.jsx
 │   │   ├── Card.jsx
@@ -51,12 +51,12 @@ src/
 │   └── layout/
 │       ├── Header.jsx
 │       └── Layout.jsx
-├── hooks/                      # Shared hooks
+├── hooks/                      # 共享 hooks
 │   └── useLocalStorage.js
-├── lib/                        # Utilities
-│   ├── api.js                  # API client
+├── lib/                        # 工具函数
+│   ├── api.js                  # API 客户端
 │   └── utils.js
-├── pages/                      # Route pages
+├── pages/                      # 路由页面
 │   ├── Dashboard.jsx
 │   └── HabitDetail.jsx
 ├── App.jsx
@@ -64,17 +64,17 @@ src/
 └── index.css
 ```
 
-### File Naming Conventions
+### 文件命名规范
 
-| Type | Convention | Example |
+| 类型 | 规范 | 示例 |
 |------|------------|---------|
-| Components | PascalCase | `HabitCard.jsx` |
-| Hooks | camelCase, `use` prefix | `useHabits.js` |
-| Utilities | camelCase | `formatDate.js` |
-| Constants | SCREAMING_SNAKE_CASE | `API_BASE_URL` |
-| CSS/styles | kebab-case | `habit-card.css` |
+| 组件 | PascalCase | `HabitCard.jsx` |
+| Hooks | camelCase，`use` 前缀 | `useHabits.js` |
+| 工具函数 | camelCase | `formatDate.js` |
+| 常量 | SCREAMING_SNAKE_CASE | `API_BASE_URL` |
+| CSS/样式 | kebab-case | `habit-card.css` |
 
-### Barrel Exports
+### 桶导出
 
 ```javascript
 // features/habits/index.js
@@ -82,20 +82,20 @@ export { HabitCard } from './components/HabitCard';
 export { HabitForm } from './components/HabitForm';
 export { useHabits } from './hooks/useHabits';
 
-// Usage elsewhere
+// 在其他地方使用
 import { HabitCard, useHabits } from '@/features/habits';
 ```
 
-**Note**: Barrel exports can hurt tree-shaking and build times in large projects. Use judiciously.
+**注意**: 桶导出可能会影响大型项目的 tree-shaking 和构建时间。请谨慎使用。
 
 ---
 
-## 2. Component Design
+## 2. 组件设计
 
-### Functional Components
+### 函数组件
 
 ```jsx
-// Simple component
+// 简单组件
 function HabitCard({ habit, onComplete }) {
   return (
     <div className="p-4 border rounded">
@@ -105,21 +105,21 @@ function HabitCard({ habit, onComplete }) {
   );
 }
 
-// With default props
+// 使用默认 props
 function HabitCard({ habit, onComplete, showStreak = true }) {
   // ...
 }
 
-// Destructure in parameters
+// 在参数中解构
 function HabitCard({ habit: { id, name, streak }, onComplete }) {
   // ...
 }
 ```
 
-### Component Composition
+### 组件组合
 
 ```jsx
-// Compound components pattern
+// 复合组件模式
 function Card({ children, className }) {
   return <div className={`border rounded ${className}`}>{children}</div>;
 }
@@ -132,38 +132,38 @@ Card.Body = function CardBody({ children }) {
   return <div className="p-4">{children}</div>;
 };
 
-// Usage
+// 使用
 <Card>
   <Card.Header>Habit Details</Card.Header>
   <Card.Body>Content here</Card.Body>
 </Card>
 ```
 
-### Props Design
+### Props 设计
 
 ```jsx
-// Prefer specific props over spreading
-// Good
+// 优先使用特定 props 而不是展开
+// 好
 function Button({ onClick, disabled, children, variant = 'primary' }) {
   return <button onClick={onClick} disabled={disabled}>{children}</button>;
 }
 
-// Avoid excessive spreading
-// Bad - hard to know what props are accepted
+// 避免过度展开
+// 差 - 很难知道接受哪些 props
 function Button(props) {
   return <button {...props} />;
 }
 
-// Accept className for styling flexibility
+// 接受 className 以获得样式灵活性
 function Card({ children, className = '' }) {
   return <div className={`base-styles ${className}`}>{children}</div>;
 }
 ```
 
-### Children Pattern
+### Children 模式
 
 ```jsx
-// Children for composition
+// 使用 children 进行组合
 function Layout({ children }) {
   return (
     <div className="container mx-auto">
@@ -174,7 +174,7 @@ function Layout({ children }) {
   );
 }
 
-// Render props for more control
+// 使用渲染 props 获得更多控制
 function HabitList({ habits, renderItem }) {
   return (
     <ul>
@@ -185,7 +185,7 @@ function HabitList({ habits, renderItem }) {
   );
 }
 
-// Usage
+// 使用
 <HabitList
   habits={habits}
   renderItem={(habit) => <HabitCard habit={habit} />}
@@ -194,39 +194,39 @@ function HabitList({ habits, renderItem }) {
 
 ---
 
-## 3. State Management
+## 3. 状态管理
 
-### When to Use What
+### 何时使用什么
 
-| State Type | Solution |
+| 状态类型 | 解决方案 |
 |------------|----------|
-| Server/async data | TanStack Query |
-| Form state | react-hook-form or useState |
-| Local UI state | useState |
-| Shared UI state | Context or Zustand |
-| URL state | React Router |
+| 服务器/异步数据 | TanStack Query |
+| 表单状态 | react-hook-form 或 useState |
+| 本地 UI 状态 | useState |
+| 共享 UI 状态 | Context 或 Zustand |
+| URL 状态 | React Router |
 
-### useState Best Practices
+### useState 最佳实践
 
 ```jsx
-// Group related state
+// 分组相关状态
 const [habit, setHabit] = useState({ name: '', description: '' });
 
-// vs multiple useState (fine for independent values)
+// vs 多个 useState（适用于独立值）
 const [name, setName] = useState('');
 const [isOpen, setIsOpen] = useState(false);
 
-// Functional updates for state based on previous value
+// 基于前一个值使用函数式更新
 setCount(prev => prev + 1);
 
-// Initialize expensive state lazily
+// 惰性初始化昂贵状态
 const [data, setData] = useState(() => expensiveComputation());
 ```
 
-### Lifting State Up
+### 状态提升
 
 ```jsx
-// Parent owns the state, children receive via props
+// 父组件拥有状态，子组件通过 props 接收
 function Dashboard() {
   const [selectedDate, setSelectedDate] = useState(new Date());
 
@@ -243,10 +243,10 @@ function Dashboard() {
 ### Context API
 
 ```jsx
-// Create context
+// 创建 context
 const HabitContext = createContext(null);
 
-// Provider component
+// Provider 组件
 function HabitProvider({ children }) {
   const [habits, setHabits] = useState([]);
 
@@ -263,7 +263,7 @@ function HabitProvider({ children }) {
   );
 }
 
-// Custom hook for consuming context
+// 自定义 hook 用于消费 context
 function useHabitContext() {
   const context = useContext(HabitContext);
   if (!context) {
@@ -272,14 +272,14 @@ function useHabitContext() {
   return context;
 }
 
-// Usage
+// 使用
 function HabitList() {
   const { habits, removeHabit } = useHabitContext();
   // ...
 }
 ```
 
-### Zustand (Simple Alternative to Redux)
+### Zustand（Redux 的简单替代方案）
 
 ```javascript
 // store/habits.js
@@ -292,7 +292,7 @@ const useHabitStore = create((set) => ({
   setFilter: (status) => set({ filterStatus: status }),
 }));
 
-// Usage in component
+// 在组件中使用
 function HabitFilter() {
   const { filterStatus, setFilter } = useHabitStore();
   // ...
@@ -301,9 +301,9 @@ function HabitFilter() {
 
 ---
 
-## 4. Data Fetching
+## 4. 数据获取
 
-### TanStack Query Setup
+### TanStack Query 设置
 
 ```jsx
 // main.jsx
@@ -312,7 +312,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 1000 * 60 * 5, // 5 minutes
+      staleTime: 1000 * 60 * 5, // 5 分钟
       retry: 1,
     },
   },
@@ -327,7 +327,7 @@ function App() {
 }
 ```
 
-### Basic Query
+### 基本查询
 
 ```javascript
 // hooks/useHabits.js
@@ -341,7 +341,7 @@ export function useHabits() {
   });
 }
 
-// Usage in component
+// 在组件中使用
 function HabitList() {
   const { data: habits, isLoading, error } = useHabits();
 
@@ -356,14 +356,14 @@ function HabitList() {
 }
 ```
 
-### Query with Parameters
+### 带参数的查询
 
 ```javascript
 export function useHabit(habitId) {
   return useQuery({
     queryKey: ['habits', habitId],
     queryFn: () => fetchHabit(habitId),
-    enabled: !!habitId, // Only run if habitId exists
+    enabled: !!habitId, // 仅在 habitId 存在时运行
   });
 }
 
@@ -375,7 +375,7 @@ export function useCompletions(habitId, month) {
 }
 ```
 
-### Mutations
+###  Mutations
 
 ```javascript
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -386,7 +386,7 @@ export function useCreateHabit() {
   return useMutation({
     mutationFn: createHabit,
     onSuccess: () => {
-      // Invalidate and refetch
+      // 使缓存失效并重新获取
       queryClient.invalidateQueries({ queryKey: ['habits'] });
     },
   });
@@ -404,7 +404,7 @@ export function useCompleteHabit() {
   });
 }
 
-// Usage
+// 使用
 function HabitCard({ habit }) {
   const { mutate: complete, isPending } = useCompleteHabit();
 
@@ -419,7 +419,7 @@ function HabitCard({ habit }) {
 }
 ```
 
-### Optimistic Updates
+### 乐观更新
 
 ```javascript
 export function useCompleteHabit() {
@@ -428,13 +428,13 @@ export function useCompleteHabit() {
   return useMutation({
     mutationFn: completeHabit,
     onMutate: async ({ habitId, date }) => {
-      // Cancel outgoing refetches
+      // 取消外部的重新获取
       await queryClient.cancelQueries({ queryKey: ['habits'] });
 
-      // Snapshot previous value
+      // 快照之前的值
       const previousHabits = queryClient.getQueryData(['habits']);
 
-      // Optimistically update
+      // 乐观更新
       queryClient.setQueryData(['habits'], (old) =>
         old.map(h => h.id === habitId
           ? { ...h, completedToday: true, currentStreak: h.currentStreak + 1 }
@@ -445,7 +445,7 @@ export function useCompleteHabit() {
       return { previousHabits };
     },
     onError: (err, variables, context) => {
-      // Rollback on error
+      // 错误时回滚
       queryClient.setQueryData(['habits'], context.previousHabits);
     },
     onSettled: () => {
@@ -455,7 +455,7 @@ export function useCompleteHabit() {
 }
 ```
 
-### API Client
+### API 客户端
 
 ```javascript
 // lib/api.js
@@ -488,7 +488,7 @@ export const completeHabit = (id, date) => request(`/habits/${id}/complete`, { m
 
 ---
 
-## 5. Forms & Validation
+## 5. 表单与验证
 
 ### React Hook Form + Zod
 
@@ -545,7 +545,7 @@ function HabitForm({ onSubmit, defaultValues }) {
 }
 ```
 
-### Simple Controlled Form
+### 简单的受控表单
 
 ```jsx
 function SimpleForm({ onSubmit }) {
@@ -579,9 +579,9 @@ function SimpleForm({ onSubmit }) {
 
 ---
 
-## 6. Styling with Tailwind
+## 6. Tailwind 样式
 
-### Vite Configuration
+### Vite 配置
 
 ```javascript
 // vite.config.js
@@ -611,10 +611,10 @@ export default {
 @tailwind utilities;
 ```
 
-### Component Styling Patterns
+### 组件样式模式
 
 ```jsx
-// Inline classes
+// 内联类名
 function Button({ children, variant = 'primary' }) {
   const baseClasses = 'px-4 py-2 rounded font-medium transition-colors';
   const variantClasses = {
@@ -630,7 +630,7 @@ function Button({ children, variant = 'primary' }) {
   );
 }
 
-// Using clsx for conditional classes
+// 使用 clsx 处理条件类名
 import clsx from 'clsx';
 
 function HabitCard({ habit, isCompleted }) {
@@ -646,51 +646,51 @@ function HabitCard({ habit, isCompleted }) {
 }
 ```
 
-### Responsive Design
+### 响应式设计
 
 ```jsx
-// Mobile-first approach
+// 移动优先方法
 <div className="
   p-2 md:p-4 lg:p-6
   grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4
   text-sm md:text-base
 ">
-  {/* Content */}
+  {/* 内容 */}
 </div>
 
-// Breakpoints: sm(640px) md(768px) lg(1024px) xl(1280px) 2xl(1536px)
+// 断点: sm(640px) md(768px) lg(1024px) xl(1280px) 2xl(1536px)
 ```
 
-### Common Patterns
+### 常见模式
 
 ```jsx
-// Card
+// 卡片
 <div className="bg-white rounded-lg shadow-md p-4">
 
-// Flex centering
+// Flex 居中
 <div className="flex items-center justify-center">
 
-// Grid layout
+// 网格布局
 <div className="grid grid-cols-7 gap-1">
 
-// Truncate text
+// 文本截断
 <p className="truncate">Long text...</p>
 
-// Focus ring
+// 焦点环
 <button className="focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2">
 
-// Disabled state
+// 禁用状态
 <button className="disabled:opacity-50 disabled:cursor-not-allowed" disabled={isPending}>
 ```
 
 ---
 
-## 7. Performance
+## 7. 性能优化
 
 ### React.memo
 
 ```jsx
-// Only re-renders when props change
+// 仅在 props 变化时重新渲染
 const HabitCard = memo(function HabitCard({ habit, onComplete }) {
   return (
     <div>
@@ -700,7 +700,7 @@ const HabitCard = memo(function HabitCard({ habit, onComplete }) {
   );
 });
 
-// Custom comparison
+// 自定义比较
 const HabitCard = memo(function HabitCard({ habit, onComplete }) {
   // ...
 }, (prevProps, nextProps) => {
@@ -709,21 +709,21 @@ const HabitCard = memo(function HabitCard({ habit, onComplete }) {
 });
 ```
 
-### useCallback and useMemo
+### useCallback 和 useMemo
 
 ```jsx
-// useCallback - memoize functions passed to child components
+// useCallback - 记忆化传递给子组件的函数
 function HabitList({ habits }) {
   const handleComplete = useCallback((id) => {
     // ...
-  }, []); // Empty deps = stable reference
+  }, []); // 空依赖 = 稳定引用
 
   return habits.map(h => (
     <HabitCard key={h.id} habit={h} onComplete={handleComplete} />
   ));
 }
 
-// useMemo - memoize expensive calculations
+// useMemo - 记忆化昂贵的计算
 function Stats({ completions }) {
   const stats = useMemo(() => {
     return calculateExpensiveStats(completions);
@@ -733,21 +733,21 @@ function Stats({ completions }) {
 }
 ```
 
-**When to use**:
-- `useCallback`: Functions passed to memoized children
-- `useMemo`: Expensive calculations, referential equality for deps
+**何时使用**:
+- `useCallback`: 传递给记忆化子组件的函数
+- `useMemo`: 昂贵的计算，依赖项的引用相等性
 
-**When NOT to use**:
-- Simple calculations
-- Primitive values
-- Functions not passed to children
+**何时不使用**:
+- 简单计算
+- 原始值
+- 不传递给子组件的函数
 
-### Code Splitting
+### 代码分割
 
 ```jsx
 import { lazy, Suspense } from 'react';
 
-// Lazy load routes
+// 懒加载路由
 const Settings = lazy(() => import('./pages/Settings'));
 const Analytics = lazy(() => import('./pages/Analytics'));
 
@@ -764,10 +764,10 @@ function App() {
 }
 ```
 
-### List Virtualization
+### 列表虚拟化
 
 ```jsx
-// For very long lists (1000+ items), use react-window
+// 对于非常长的列表（1000+ 项），使用 react-window
 import { FixedSizeList } from 'react-window';
 
 function VirtualizedList({ items }) {
@@ -788,9 +788,9 @@ function VirtualizedList({ items }) {
 
 ---
 
-## 8. Hooks Patterns
+## 8. Hooks 模式
 
-### Custom Hooks
+### 自定义 Hooks
 
 ```javascript
 // useLocalStorage
@@ -827,10 +827,10 @@ function useToggle(initialValue = false) {
 }
 ```
 
-### useEffect Patterns
+### useEffect 模式
 
 ```jsx
-// Cleanup function
+// 清理函数
 useEffect(() => {
   const controller = new AbortController();
 
@@ -838,42 +838,42 @@ useEffect(() => {
     .then(res => res.json())
     .then(setData);
 
-  return () => controller.abort(); // Cleanup on unmount
+  return () => controller.abort(); // 卸载时清理
 }, []);
 
-// Event listeners
+// 事件监听器
 useEffect(() => {
   const handleResize = () => setWidth(window.innerWidth);
   window.addEventListener('resize', handleResize);
   return () => window.removeEventListener('resize', handleResize);
 }, []);
 
-// Sync with external system
+// 与外部系统同步
 useEffect(() => {
   const subscription = externalStore.subscribe(setData);
   return () => subscription.unsubscribe();
 }, []);
 ```
 
-### useEffect Pitfalls
+### useEffect 陷阱
 
 ```jsx
-// BAD: Missing dependency
+// 差: 缺少依赖项
 useEffect(() => {
-  fetchData(userId); // userId not in deps - stale closure
+  fetchData(userId); // userId 不在依赖中 - 过期闭包
 }, []);
 
-// GOOD: Include all dependencies
+// 好: 包含所有依赖项
 useEffect(() => {
   fetchData(userId);
 }, [userId]);
 
-// BAD: Object/array in deps (new reference every render)
+// 差: 对象/数组在依赖中（每次渲染都创建新引用）
 useEffect(() => {
-  doSomething(options); // options = {} creates new object each render
+  doSomething(options); // options = {} 每次渲染创建新对象
 }, [options]);
 
-// GOOD: Memoize or use primitive values
+// 好: 记忆化或使用原始值
 const memoizedOptions = useMemo(() => options, [options.key1, options.key2]);
 useEffect(() => {
   doSomething(memoizedOptions);
@@ -882,9 +882,9 @@ useEffect(() => {
 
 ---
 
-## 9. Routing
+## 9. 路由
 
-### React Router v6 Setup
+### React Router v6 设置
 
 ```jsx
 // App.jsx
@@ -906,7 +906,7 @@ function App() {
 }
 ```
 
-### Layout Route
+### 布局路由
 
 ```jsx
 // Layout.jsx
@@ -920,14 +920,14 @@ function Layout() {
         <Link to="/settings">Settings</Link>
       </nav>
       <main className="container mx-auto p-4">
-        <Outlet /> {/* Child routes render here */}
+        <Outlet /> {/* 子路由在这里渲染 */}
       </main>
     </div>
   );
 }
 ```
 
-### Route Parameters
+### 路由参数
 
 ```jsx
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
@@ -950,15 +950,15 @@ function HabitDetail() {
 }
 ```
 
-### Navigation
+### 导航
 
 ```jsx
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 
-// Simple link
+// 简单链接
 <Link to="/settings">Settings</Link>
 
-// Active styling
+// 激活状态样式
 <NavLink
   to="/"
   className={({ isActive }) => isActive ? 'text-primary' : 'text-gray-600'}
@@ -966,18 +966,18 @@ import { Link, NavLink, useNavigate } from 'react-router-dom';
   Dashboard
 </NavLink>
 
-// Programmatic navigation
+// 编程式导航
 const navigate = useNavigate();
 navigate('/habits/1');
-navigate(-1); // Go back
-navigate('/', { replace: true }); // Replace history
+navigate(-1); // 返回
+navigate('/', { replace: true }); // 替换历史记录
 ```
 
 ---
 
-## 10. Error Handling
+## 10. 错误处理
 
-### Error Boundaries
+### 错误边界
 
 ```jsx
 import { Component } from 'react';
@@ -991,7 +991,7 @@ class ErrorBoundary extends Component {
 
   componentDidCatch(error, errorInfo) {
     console.error('Error caught:', error, errorInfo);
-    // Send to error tracking service
+    // 发送到错误跟踪服务
   }
 
   render() {
@@ -1009,13 +1009,13 @@ class ErrorBoundary extends Component {
   }
 }
 
-// Usage
+// 使用
 <ErrorBoundary fallback={<ErrorPage />}>
   <App />
 </ErrorBoundary>
 ```
 
-### Async Error Handling
+### 异步错误处理
 
 ```jsx
 function HabitList() {
@@ -1034,10 +1034,10 @@ function HabitList() {
 }
 ```
 
-### Toast Notifications
+### Toast 通知
 
 ```jsx
-// Using a toast library like react-hot-toast
+// 使用 toast 库如 react-hot-toast
 import toast from 'react-hot-toast';
 
 function useCreateHabit() {
@@ -1055,9 +1055,9 @@ function useCreateHabit() {
 
 ---
 
-## 11. Testing
+## 11. 测试
 
-### Setup with Vitest
+### 使用 Vitest 设置
 
 ```javascript
 // vite.config.js
@@ -1074,7 +1074,7 @@ export default defineConfig({
 import '@testing-library/jest-dom';
 ```
 
-### Component Testing
+### 组件测试
 
 ```jsx
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
@@ -1097,7 +1097,7 @@ describe('HabitCard', () => {
 });
 ```
 
-### Testing with Providers
+### 使用 Provider 测试
 
 ```jsx
 // test/utils.jsx
@@ -1124,7 +1124,7 @@ export function renderWithProviders(ui) {
 }
 ```
 
-### Mocking API Calls
+### Mock API 调用
 
 ```jsx
 import { vi } from 'vitest';
@@ -1147,12 +1147,12 @@ it('loads and displays habits', async () => {
 
 ---
 
-## 12. Accessibility
+## 12. 无障碍访问
 
-### Semantic HTML
+### 语义化 HTML
 
 ```jsx
-// Use semantic elements
+// 使用语义化元素
 <header>...</header>
 <nav>...</nav>
 <main>...</main>
@@ -1160,36 +1160,36 @@ it('loads and displays habits', async () => {
 <aside>...</aside>
 <footer>...</footer>
 
-// Use headings properly (h1 > h2 > h3)
+// 正确使用标题 (h1 > h2 > h3)
 <h1>Dashboard</h1>
 <section>
   <h2>Today's Habits</h2>
 </section>
 ```
 
-### ARIA Attributes
+### ARIA 属性
 
 ```jsx
-// Labels
+// 标签
 <button aria-label="Close modal">×</button>
 
-// Live regions (for dynamic content)
+// 实时区域（用于动态内容）
 <div aria-live="polite" aria-atomic="true">
   {statusMessage}
 </div>
 
-// States
+// 状态
 <button aria-pressed={isCompleted}>Complete</button>
 <button aria-expanded={isOpen}>Menu</button>
 
-// Roles
+// 角色
 <div role="alert">{errorMessage}</div>
 ```
 
-### Focus Management
+### 焦点管理
 
 ```jsx
-// Focus trap in modals
+// 模态框中的焦点陷阱
 function Modal({ isOpen, onClose, children }) {
   const modalRef = useRef();
 
@@ -1213,10 +1213,10 @@ function Modal({ isOpen, onClose, children }) {
 }
 ```
 
-### Keyboard Navigation
+### 键盘导航
 
 ```jsx
-// Handle keyboard interactions
+// 处理键盘交互
 function ListItem({ onSelect }) {
   const handleKeyDown = (e) => {
     if (e.key === 'Enter' || e.key === ' ') {
@@ -1240,42 +1240,42 @@ function ListItem({ onSelect }) {
 
 ---
 
-## 13. Anti-Patterns
+## 13. 反模式
 
-### Common Mistakes
+### 常见错误
 
-| Anti-Pattern | Problem | Solution |
+| 反模式 | 问题 | 解决方案 |
 |--------------|---------|----------|
-| Props drilling | Hard to maintain | Context or composition |
-| Huge components | Hard to test/maintain | Split into smaller components |
-| useEffect for derived state | Unnecessary complexity | Compute during render |
-| Index as key | Bugs with reordering | Use stable unique IDs |
-| Direct DOM manipulation | Conflicts with React | Use refs sparingly |
+| Props 穿透 | 难以维护 | Context 或组合 |
+| 巨大的组件 | 难以测试/维护 | 拆分为更小的组件 |
+| useEffect 用于派生状态 | 不必要的复杂性 | 在渲染时计算 |
+| 使用索引作为 key | 重新排序时出现 bug | 使用稳定的唯一 ID |
+| 直接 DOM 操作 | 与 React 冲突 | 谨慎使用 refs |
 
-### Code Examples
+### 代码示例
 
 ```jsx
-// BAD: Derived state in useEffect
+// 差: 在 useEffect 中派生状态
 const [fullName, setFullName] = useState('');
 useEffect(() => {
   setFullName(`${firstName} ${lastName}`);
 }, [firstName, lastName]);
 
-// GOOD: Compute during render
+// 好: 在渲染时计算
 const fullName = `${firstName} ${lastName}`;
 
-// BAD: Index as key (causes bugs when list changes)
+// 差: 使用索引作为 key（列表变化时会导致 bug）
 {items.map((item, index) => <Item key={index} item={item} />)}
 
-// GOOD: Stable unique ID
+// 好: 稳定的唯一 ID
 {items.map(item => <Item key={item.id} item={item} />)}
 
-// BAD: Fetching in useEffect without cleanup
+// 差: 在 useEffect 中获取数据但没有清理
 useEffect(() => {
   fetch('/api/data').then(res => res.json()).then(setData);
 }, []);
 
-// GOOD: Use TanStack Query or add cleanup
+// 好: 使用 TanStack Query 或添加清理
 useEffect(() => {
   let cancelled = false;
   fetch('/api/data')
@@ -1287,9 +1287,9 @@ useEffect(() => {
 
 ---
 
-## Quick Reference
+## 快速参考
 
-### Common Imports
+### 常见导入
 
 ```jsx
 // React
@@ -1301,7 +1301,7 @@ import { BrowserRouter, Routes, Route, Link, useParams, useNavigate } from 'reac
 // TanStack Query
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
-// Form
+// 表单
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -1309,9 +1309,9 @@ import { z } from 'zod';
 
 ---
 
-## Resources
+## 资源
 
-- [React Documentation](https://react.dev/)
+- [React 文档](https://react.dev/)
 - [TanStack Query](https://tanstack.com/query/latest)
 - [React Router](https://reactrouter.com/)
 - [Tailwind CSS](https://tailwindcss.com/)

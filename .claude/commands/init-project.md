@@ -1,55 +1,55 @@
-# Initialize Project
+# 初始化项目
 
-Set up and start the project locally.
+在本地设置和启动项目。
 
-## 1. Install Backend Dependencies
+## 1. 安装后端依赖
 
 ```bash
-# Example for Python with uv:
+# Python 示例（使用 uv）：
 cd backend && uv sync
 
-# Example for Node.js:
+# Node.js 示例：
 cd backend && npm install
 ```
 
-## 2. Install Frontend Dependencies
+## 2. 安装前端依赖
 
 ```bash
 cd frontend && npm install
 ```
 
-## 3. Start Backend Server
+## 3. 启动后端服务器
 
 ```bash
-# Example for Python/FastAPI:
+# Python/FastAPI 示例：
 cd backend && uv run uvicorn app.main:app --reload --port 8000
 
-# Example for Node.js/Express:
+# Node.js/Express 示例：
 cd backend && npm run dev
 ```
 
-## 4. Start Frontend Server
+## 4. 启动前端服务器
 
 ```bash
 cd frontend && npm run dev
 ```
 
-## 5. Validate Setup
+## 5. 验证设置
 
 ```bash
-# Test that the API is responding
+# 测试 API 是否响应
 curl -s http://localhost:8000/health
 
-# Or check the main endpoint
+# 或检查主端点
 curl -s http://localhost:8000/api/...
 ```
 
-## Access Points
+## 访问点
 
-- **Frontend**: http://localhost:5173 (or your configured port)
-- **Backend API**: http://localhost:8000 (or your configured port)
-- **API Docs**: http://localhost:8000/docs (if using FastAPI)
+- **前端**：http://localhost:5173（或您配置的端口）
+- **后端 API**：http://localhost:8000（或您配置的端口）
+- **API 文档**：http://localhost:8000/docs（如果使用 FastAPI）
 
-## Notes
+## 说明
 
-<!-- Add project-specific notes about initialization here -->
+<!-- 在此添加项目特定的初始化说明 -->

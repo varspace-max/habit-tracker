@@ -1,78 +1,78 @@
-# SQLite & SQL Best Practices Reference
+# SQLite 和 SQL 最佳实践参考指南
 
-A concise reference guide for working with SQLite databases in Python applications.
-
----
-
-## Table of Contents
-
-1. [When to Use SQLite](#1-when-to-use-sqlite)
-2. [Schema Design](#2-schema-design)
-3. [Data Types](#3-data-types)
-4. [Indexing](#4-indexing)
-5. [Query Optimization](#5-query-optimization)
-6. [SQLAlchemy Patterns](#6-sqlalchemy-patterns)
-7. [Data Integrity](#7-data-integrity)
-8. [Transactions](#8-transactions)
-9. [Python Integration](#9-python-integration)
-10. [Performance Tuning](#10-performance-tuning)
-11. [Backup & Recovery](#11-backup--recovery)
-12. [Anti-Patterns](#12-anti-patterns)
+在 Python 应用程序中使用 SQLite 数据库的简明参考指南。
 
 ---
 
-## 1. When to Use SQLite
+## 目录
 
-### Ideal Use Cases
+1. [何时使用 SQLite](#1-何时使用-sqlite)
+2. [数据库设计](#2-数据库设计)
+3. [数据类型](#3-数据类型)
+4. [索引](#4-索引)
+5. [查询优化](#5-查询优化)
+6. [SQLAlchemy 模式](#6-sqlalchemy-模式)
+7. [数据完整性](#7-数据完整性)
+8. [事务](#8-事务)
+9. [Python 集成](#9-python-集成)
+10. [性能调优](#10-性能调优)
+11. [备份与恢复](#11-备份与恢复)
+12. [反模式](#12-反模式)
 
-- **Embedded/IoT devices**: Mobile apps, desktop apps, local tools
-- **Application file format**: Single-file database for app data
-- **Low-to-medium traffic websites**: Under 100K requests/day
-- **Development and testing**: Quick setup, no server needed
-- **Data analysis**: Import CSV, run SQL queries
-- **Caching layer**: Local cache of remote data
-- **Single-user applications**: Personal tools, local apps
+---
 
-### When NOT to Use SQLite
+## 1. 何时使用 SQLite
 
-- **High write concurrency**: SQLite allows one writer at a time
-- **Network filesystems**: NFS, SMB can cause corruption
-- **Multiple servers**: Can't share SQLite across machines
-- **Very large datasets**: >1TB may need distributed solutions
-- **High-traffic production**: Consider PostgreSQL instead
+### 理想使用场景
 
-### Key Characteristics
+- **嵌入式/物联网设备**：移动应用、桌面应用、本地工具
+- **应用程序文件格式**：用于应用数据的单文件数据库
+- **低至中等流量的网站**：每日请求量低于 10 万次
+- **开发和测试**：快速设置，无需服务器
+- **数据分析**：导入 CSV，运行 SQL 查询
+- **缓存层**：远程数据的本地缓存
+- **单用户应用程序**：个人工具、本地应用
 
-| Feature | Value |
+### 不适合使用 SQLite 的场景
+
+- **高并发写入**：SQLite 一次只允许一个写入操作
+- **网络文件系统**：NFS、SMB 可能导致数据损坏
+- **多台服务器**：无法在多台机器间共享 SQLite
+- **超大数据集**：超过 1TB 可能需要分布式方案
+- **高流量生产环境**：考虑使用 PostgreSQL
+
+### 关键特性
+
+| 特性 | 数值 |
 |---------|-------|
-| Library size | <600KB |
-| Max database size | 281 TB |
-| Max row size | 1 GB |
-| Concurrent readers | Unlimited |
-| Concurrent writers | 1 |
-| ACID compliant | Yes |
+| 库大小 | <600KB |
+| 最大数据库大小 | 281 TB |
+| 最大行大小 | 1 GB |
+| 并发读取器 | 无限制 |
+| 并发写入器 | 1 |
+| ACID 兼容 | 是 |
 
 ---
 
-## 2. Schema Design
+## 2. 数据库设计
 
-### Primary Keys
+### 主键
 
 ```sql
--- Recommended: INTEGER PRIMARY KEY (aliases to rowid, auto-increments)
+-- 推荐：INTEGER PRIMARY KEY（别名 rowid，自动递增）
 CREATE TABLE habits (
     id INTEGER PRIMARY KEY,
     name TEXT NOT NULL,
     created_at TEXT NOT NULL
 );
 
--- With explicit AUTOINCREMENT (prevents rowid reuse after deletion)
+-- 使用显式 AUTOINCREMENT（删除后防止重用 rowid）
 CREATE TABLE habits (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL
 );
 
--- Composite primary key
+-- 复合主键
 CREATE TABLE completions (
     habit_id INTEGER NOT NULL,
     completed_date TEXT NOT NULL,
@@ -81,10 +81,10 @@ CREATE TABLE completions (
 );
 ```
 
-### Foreign Keys
+### 外键
 
 ```sql
--- Foreign keys are DISABLED by default - must enable per connection
+-- 外键默认禁用 - 必须在每个连接中启用
 PRAGMA foreign_keys = ON;
 
 CREATE TABLE completions (
@@ -95,17 +95,17 @@ CREATE TABLE completions (
 );
 ```
 
-**Cascading actions**:
+**级联操作**：
 
-| Action | Behavior |
+| 操作 | 行为 |
 |--------|----------|
-| `NO ACTION` | Reject if child rows exist (default) |
-| `CASCADE` | Delete/update child rows |
-| `SET NULL` | Set foreign key to NULL |
-| `SET DEFAULT` | Set foreign key to default value |
-| `RESTRICT` | Like NO ACTION but immediate |
+| `NO ACTION` | 如果存在子行则拒绝（默认） |
+| `CASCADE` | 删除/更新子行 |
+| `SET NULL` | 将外键设置为 NULL |
+| `SET DEFAULT` | 将外键设置为默认值 |
+| `RESTRICT` | 类似 NO ACTION 但立即生效 |
 
-### Table Constraints
+### 表约束
 
 ```sql
 CREATE TABLE habits (
@@ -115,7 +115,7 @@ CREATE TABLE habits (
     created_at TEXT NOT NULL DEFAULT (datetime('now')),
     archived_at TEXT,
 
-    -- Check constraint
+    -- 检查约束
     CHECK (length(name) > 0),
     CHECK (color GLOB '#[0-9A-Fa-f][0-9A-Fa-f][0-9A-Fa-f][0-9A-Fa-f][0-9A-Fa-f][0-9A-Fa-f]')
 );
@@ -132,55 +132,55 @@ CREATE TABLE completions (
 );
 ```
 
-### WITHOUT ROWID Tables
+### WITHOUT ROWID 表
 
 ```sql
--- Use for non-integer or composite primary keys
+-- 用于非整数或复合主键
 CREATE TABLE settings (
     key TEXT PRIMARY KEY,
     value TEXT NOT NULL
 ) WITHOUT ROWID;
 ```
 
-**When to use**:
-- Non-integer primary keys
-- Composite primary keys
-- Small row sizes
-- Frequent primary key lookups
+**使用场景**：
+- 非整数主键
+- 复合主键
+- 行较小
+- 频繁的主键查询
 
-**When to avoid**:
-- Large primary keys (duplicated in all indexes)
-- Many secondary indexes
-- Large row sizes
+**避免使用**：
+- 大主键（所有索引中都会复制）
+- 多个辅助索引
+- 大行
 
 ---
 
-## 3. Data Types
+## 3. 数据类型
 
-### SQLite Type Affinity
+### SQLite 类型亲和性
 
-SQLite uses dynamic typing - the type is associated with values, not columns.
+SQLite 使用动态类型 - 类型与值关联，而非与列关联。
 
-**Five storage classes**:
+**五种存储类**：
 
-| Class | Description |
+| 类 | 描述 |
 |-------|-------------|
-| `NULL` | NULL value |
-| `INTEGER` | Signed integer (1-8 bytes) |
-| `REAL` | 8-byte IEEE float |
-| `TEXT` | UTF-8/UTF-16 string |
-| `BLOB` | Binary data |
+| `NULL` | 空值 |
+| `INTEGER` | 有符号整数（1-8 字节） |
+| `REAL` | 8 字节 IEEE 浮点数 |
+| `TEXT` | UTF-8/UTF-16 字符串 |
+| `BLOB` | 二进制数据 |
 
-**Type affinity rules** (based on declared type name):
-1. Contains "INT" → INTEGER
-2. Contains "CHAR", "CLOB", "TEXT" → TEXT
-3. Contains "BLOB" or no type → BLOB
-4. Contains "REAL", "FLOA", "DOUB" → REAL
-5. Otherwise → NUMERIC
+**类型亲和性规则**（基于声明的类型名称）：
+1. 包含 "INT" → INTEGER
+2. 包含 "CHAR"、"CLOB"、"TEXT" → TEXT
+3. 包含 "BLOB" 或无类型 → BLOB
+4. 包含 "REAL"、"FLOA"、"DOUB" → REAL
+5. 其他 → NUMERIC
 
-### Date/Time Storage
+### 日期/时间存储
 
-**Option 1: TEXT (ISO 8601) - Recommended**
+**选项 1：TEXT（ISO 8601）- 推荐**
 
 ```sql
 CREATE TABLE completions (
@@ -189,15 +189,15 @@ CREATE TABLE completions (
     created_at TEXT NOT NULL DEFAULT (datetime('now'))  -- 'YYYY-MM-DD HH:MM:SS'
 );
 
--- Query examples
+-- 查询示例
 SELECT * FROM completions WHERE completed_date = '2025-01-15';
 SELECT * FROM completions WHERE completed_date >= '2025-01-01' AND completed_date < '2025-02-01';
 SELECT * FROM completions WHERE completed_date BETWEEN '2025-01-01' AND '2025-01-31';
 ```
 
-**Benefits**: Human-readable, lexicographically sortable, works with SQLite date functions.
+**优点**：人类可读、字典序可排序、与 SQLite 日期函数配合使用。
 
-**Option 2: INTEGER (Unix timestamp)**
+**选项 2：INTEGER（Unix 时间戳）**
 
 ```sql
 CREATE TABLE events (
@@ -205,42 +205,42 @@ CREATE TABLE events (
     timestamp INTEGER NOT NULL DEFAULT (strftime('%s', 'now'))
 );
 
--- Query examples
+-- 查询示例
 SELECT * FROM events WHERE timestamp >= strftime('%s', '2025-01-01');
 SELECT datetime(timestamp, 'unixepoch') as readable_time FROM events;
 ```
 
-**Benefits**: Smaller storage (8 bytes), faster comparisons.
+**优点**：存储更小（8 字节），比较更快。
 
-### Boolean Handling
+### 布尔值处理
 
 ```sql
--- SQLite has no native BOOLEAN - use INTEGER 0/1
+-- SQLite 没有原生的 BOOLEAN - 使用 INTEGER 0/1
 CREATE TABLE habits (
     id INTEGER PRIMARY KEY,
     name TEXT NOT NULL,
     is_active INTEGER NOT NULL DEFAULT 1 CHECK (is_active IN (0, 1))
 );
 
--- TRUE and FALSE are aliases for 1 and 0 (SQLite 3.23.0+)
+-- TRUE 和 FALSE 是 1 和 0 的别名（SQLite 3.23.0+）
 INSERT INTO habits (name, is_active) VALUES ('Exercise', TRUE);
 SELECT * FROM habits WHERE is_active = TRUE;
 ```
 
-### JSON Storage
+### JSON 存储
 
 ```sql
--- Store as TEXT, query with JSON functions (SQLite 3.38.0+)
+-- 存储为 TEXT，使用 JSON 函数查询（SQLite 3.38.0+）
 CREATE TABLE habits (
     id INTEGER PRIMARY KEY,
     name TEXT NOT NULL,
-    settings TEXT  -- JSON string
+    settings TEXT  -- JSON 字符串
 );
 
 INSERT INTO habits (name, settings)
 VALUES ('Exercise', '{"reminder_time": "09:00", "notifications": true}');
 
--- Query JSON
+-- 查询 JSON
 SELECT
     name,
     json_extract(settings, '$.reminder_time') as reminder
@@ -248,89 +248,89 @@ FROM habits
 WHERE json_extract(settings, '$.notifications') = 1;
 ```
 
-### STRICT Tables (SQLite 3.37.0+)
+### STRICT 表（SQLite 3.37.0+）
 
 ```sql
--- Enforce type checking
+-- 强制类型检查
 CREATE TABLE habits (
     id INTEGER PRIMARY KEY,
     name TEXT NOT NULL,
     count INTEGER NOT NULL
 ) STRICT;
 
--- This will fail: INSERT INTO habits (name, count) VALUES ('Test', 'not a number');
+-- 这将失败：INSERT INTO habits (name, count) VALUES ('Test', 'not a number');
 ```
 
 ---
 
-## 4. Indexing
+## 4. 索引
 
-### When to Index
+### 何时创建索引
 
-- Columns in `WHERE` clauses
-- Columns in `JOIN` conditions
-- Columns in `ORDER BY` clauses
-- Foreign key columns (critical for CASCADE operations)
+- WHERE 子句中的列
+- JOIN 条件中的列
+- ORDER BY 子句中的列
+- 外键列（对 CASCADE 操作至关重要）
 
-### Index Types
+### 索引类型
 
 ```sql
--- Single column index
+-- 单列索引
 CREATE INDEX idx_habits_name ON habits(name);
 
--- Composite index (column order matters!)
+-- 复合索引（列顺序很重要！）
 CREATE INDEX idx_completions_habit_date ON completions(habit_id, completed_date);
 
--- Unique index
+-- 唯一索引
 CREATE UNIQUE INDEX idx_habits_name_unique ON habits(name);
 
--- Partial index (indexes subset of rows)
+-- 部分索引（索引行的子集）
 CREATE INDEX idx_active_habits ON habits(name) WHERE archived_at IS NULL;
 
--- Expression index
+-- 表达式索引
 CREATE INDEX idx_habits_lower_name ON habits(lower(name));
 ```
 
-### Composite Index Column Order
+### 复合索引列顺序
 
-The order of columns in a composite index matters:
+复合索引中列的顺序很重要：
 
 ```sql
 CREATE INDEX idx_completions ON completions(habit_id, completed_date);
 
--- Uses index (habit_id is leftmost)
+-- 使用索引（habit_id 是最左边的列）
 SELECT * FROM completions WHERE habit_id = 1;
 
--- Uses index (both columns, in order)
+-- 使用索引（两列，按顺序）
 SELECT * FROM completions WHERE habit_id = 1 AND completed_date = '2025-01-15';
 
--- Does NOT use index efficiently (completed_date is not leftmost)
+-- 不能高效使用索引（completed_date 不是最左边的列）
 SELECT * FROM completions WHERE completed_date = '2025-01-15';
 ```
 
-### Covering Indexes
+### 覆盖索引
 
 ```sql
--- Include all columns needed by query to avoid table lookup
+-- 包含查询需要的所有列，避免表查找
 CREATE INDEX idx_completions_covering ON completions(habit_id, completed_date, status);
 
--- This query is fully satisfied by the index
+-- 这个查询完全由索引满足
 SELECT completed_date, status FROM completions WHERE habit_id = 1;
 ```
 
-### Index Trade-offs
+### 索引权衡
 
-| Benefit | Cost |
+| 优点 | 缺点 |
 |---------|------|
-| Faster reads | Slower writes |
-| Faster ORDER BY | More disk space |
-| Faster JOINs | Memory overhead |
+| 读取更快 | 写入更慢 |
+| ORDER BY 更快 | 占用更多磁盘空间 |
+| JOIN 更快 | 内存开销 |
 
-**Rule of thumb**: Expect ~5x slower INSERTs per secondary index.
+**经验法则**：每个辅助索引大约会使 INSERT 慢 5 倍。
 
 ---
 
-## 5. Query Optimization
+## 5. 查询优化
 
 ### EXPLAIN QUERY PLAN
 
@@ -342,86 +342,86 @@ JOIN completions c ON h.id = c.habit_id
 WHERE c.completed_date >= '2025-01-01'
 GROUP BY h.id;
 
--- Output interpretation:
--- SCAN = full table scan (often bad)
--- SEARCH = using index (good)
--- USING INDEX = index-only access (best)
--- USING COVERING INDEX = no table access needed (best)
+-- 输出解释：
+-- SCAN = 全表扫描（通常不好）
+-- SEARCH = 使用索引（好）
+-- USING INDEX = 纯索引访问（最好）
+-- USING COVERING INDEX = 无需表访问（最好）
 ```
 
-### Query Tips
+### 查询技巧
 
 ```sql
--- BAD: SELECT *
+-- 不好：SELECT *
 SELECT * FROM habits;
 
--- GOOD: Select only needed columns
+-- 好：只选择需要的列
 SELECT id, name, created_at FROM habits;
 
--- BAD: LIKE for prefix search without index
+-- 不好：在没有索引的情况下使用 LIKE 进行前缀搜索
 SELECT * FROM habits WHERE name LIKE '%exercise%';
 
--- GOOD: Prefix LIKE can use index
+-- 好：前缀 LIKE 可以使用索引
 SELECT * FROM habits WHERE name LIKE 'exercise%';
 
--- BAD: Functions on indexed columns
+-- 不好：对索引列使用函数
 SELECT * FROM habits WHERE lower(name) = 'exercise';
 
--- GOOD: Create expression index, or normalize data
+-- 好：创建表达式索引，或规范化数据
 CREATE INDEX idx_lower_name ON habits(lower(name));
 
--- BAD: OR on different columns (hard to optimize)
+-- 不好：不同列上的 OR（难以优化）
 SELECT * FROM habits WHERE name = 'Exercise' OR description = 'workout';
 
--- GOOD: Use UNION for complex OR conditions
+-- 好：对复杂的 OR 条件使用 UNION
 SELECT * FROM habits WHERE name = 'Exercise'
 UNION
 SELECT * FROM habits WHERE description = 'workout';
 ```
 
-### Efficient Date Queries
+### 高效的日期查询
 
 ```sql
--- For TEXT dates (ISO 8601)
+-- 对于 TEXT 日期（ISO 8601）
 SELECT * FROM completions
 WHERE completed_date >= '2025-01-01'
   AND completed_date < '2025-02-01';
 
--- For current month
+-- 对于当前月份
 SELECT * FROM completions
 WHERE completed_date >= date('now', 'start of month')
   AND completed_date < date('now', 'start of month', '+1 month');
 
--- DON'T use LIKE for dates
--- BAD: WHERE completed_date LIKE '2025-01%'
+-- 不要使用 LIKE 查询日期
+-- 不好：WHERE completed_date LIKE '2025-01%'
 ```
 
-### Running ANALYZE
+### 运行 ANALYZE
 
 ```sql
--- Update statistics for query planner
+-- 更新查询计划器的统计信息
 ANALYZE;
 
--- Run before closing connections (SQLite 3.18.0+)
+-- 关闭连接前运行（SQLite 3.18.0+）
 PRAGMA optimize;
 ```
 
 ---
 
-## 6. SQLAlchemy Patterns
+## 6. SQLAlchemy 模式
 
-### Engine Setup
+### 引擎设置
 
 ```python
 from sqlalchemy import create_engine, event
 
 engine = create_engine(
     "sqlite:///habits.db",
-    connect_args={"check_same_thread": False},  # For multi-threaded apps
-    echo=False,  # Set True for SQL logging
+    connect_args={"check_same_thread": False},  # 用于多线程应用
+    echo=False,  # 设置 True 以记录 SQL
 )
 
-# Apply PRAGMA settings on every connection
+# 每次连接时应用 PRAGMA 设置
 @event.listens_for(engine, "connect")
 def set_sqlite_pragma(dbapi_connection, connection_record):
     cursor = dbapi_connection.cursor()
@@ -433,7 +433,7 @@ def set_sqlite_pragma(dbapi_connection, connection_record):
     cursor.close()
 ```
 
-### Model Definition
+### 模型定义
 
 ```python
 from sqlalchemy import Column, Integer, String, Text, ForeignKey, UniqueConstraint, CheckConstraint
@@ -480,46 +480,46 @@ class Completion(Base):
     )
 ```
 
-### Relationship Loading Strategies
+### 关系加载策略
 
-| Strategy | Use Case |
+| 策略 | 使用场景 |
 |----------|----------|
-| `lazy="select"` | Default, N+1 if accessed |
-| `lazy="joined"` | Many-to-one relationships |
-| `lazy="selectin"` | One-to-many collections |
-| `lazy="raise"` | Prevent accidental lazy loads |
+| `lazy="select"` | 默认，访问时会出现 N+1 问题 |
+| `lazy="joined"` | 多对一关系 |
+| `lazy="selectin"` | 一对多集合 |
+| `lazy="raise"` | 防止意外的延迟加载 |
 
 ```python
 from sqlalchemy.orm import joinedload, selectinload
 
-# Eager load in query
+# 查询中预加载
 habits = session.query(Habit).options(selectinload(Habit.completions)).all()
 
-# For many-to-one
+# 对于多对一
 completions = session.query(Completion).options(joinedload(Completion.habit)).all()
 ```
 
-### Session Management
+### 会话管理
 
 ```python
 from sqlalchemy.orm import sessionmaker, Session
 
 SessionLocal = sessionmaker(bind=engine)
 
-# Context manager pattern (recommended)
+# 上下文管理器模式（推荐）
 def get_habits():
     with Session(engine) as session:
         return session.query(Habit).all()
 
-# With transaction handling
+# 带事务处理
 def create_habit(name: str):
     with Session(engine) as session, session.begin():
         habit = Habit(name=name, created_at=datetime.now().isoformat())
         session.add(habit)
-        # Auto-commits on success, rolls back on exception
+        # 成功时自动提交，异常时自动回滚
         return habit
 
-# For FastAPI dependency
+# 用于 FastAPI 依赖
 def get_db():
     db = SessionLocal()
     try:
@@ -530,54 +530,54 @@ def get_db():
 
 ---
 
-## 7. Data Integrity
+## 7. 数据完整性
 
-### Constraints Summary
+### 约束汇总
 
 ```sql
 CREATE TABLE example (
-    id INTEGER PRIMARY KEY,                    -- Primary key
-    name TEXT NOT NULL,                        -- Required field
-    email TEXT UNIQUE,                         -- No duplicates
-    age INTEGER CHECK (age >= 0),              -- Value validation
-    category_id INTEGER REFERENCES categories(id),  -- Foreign key
-    status TEXT DEFAULT 'active'               -- Default value
+    id INTEGER PRIMARY KEY,                    -- 主键
+    name TEXT NOT NULL,                        -- 必填字段
+    email TEXT UNIQUE,                         -- 不允许重复
+    age INTEGER CHECK (age >= 0),              -- 值验证
+    category_id INTEGER REFERENCES categories(id),  -- 外键
+    status TEXT DEFAULT 'active'               -- 默认值
 );
 ```
 
-### Enforcing Foreign Keys
+### 强制执行外键
 
 ```python
-# MUST enable foreign keys per connection
+# 必须在每个连接中启用外键
 @event.listens_for(engine, "connect")
 def set_sqlite_pragma(dbapi_connection, connection_record):
     cursor = dbapi_connection.cursor()
     cursor.execute("PRAGMA foreign_keys=ON")
     cursor.close()
 
-# Verify it's enabled
+# 验证已启用
 result = connection.execute("PRAGMA foreign_keys").fetchone()
 assert result[0] == 1
 ```
 
-### Soft Deletes
+### 软删除
 
 ```sql
--- Instead of DELETE, set archived_at
+-- 不使用 DELETE，而是设置 archived_at
 UPDATE habits SET archived_at = datetime('now') WHERE id = 1;
 
--- Query active records
+-- 查询活动记录
 SELECT * FROM habits WHERE archived_at IS NULL;
 
--- Create partial index for active records
+-- 为活动记录创建部分索引
 CREATE INDEX idx_active_habits ON habits(name) WHERE archived_at IS NULL;
 ```
 
 ---
 
-## 8. Transactions
+## 8. 事务
 
-### Basic Transactions
+### 基本事务
 
 ```sql
 BEGIN TRANSACTION;
@@ -585,18 +585,18 @@ INSERT INTO habits (name, created_at) VALUES ('Exercise', datetime('now'));
 INSERT INTO completions (habit_id, completed_date) VALUES (last_insert_rowid(), '2025-01-15');
 COMMIT;
 
--- On error
+-- 发生错误时
 ROLLBACK;
 ```
 
-### Python Transactions
+### Python 事务
 
 ```python
-# Explicit transaction
+# 显式事务
 with engine.begin() as connection:
     connection.execute(text("INSERT INTO habits ..."))
     connection.execute(text("INSERT INTO completions ..."))
-    # Auto-commits on success, auto-rollbacks on exception
+    # 成功时自动提交，异常时自动回滚
 
 # SQLAlchemy ORM
 with Session(engine) as session, session.begin():
@@ -604,82 +604,82 @@ with Session(engine) as session, session.begin():
     session.add(habit)
     completion = Completion(habit=habit, completed_date="2025-01-15")
     session.add(completion)
-    # Auto-commits/rollbacks
+    # 自动提交/回滚
 ```
 
-### Isolation Levels
+### 隔离级别
 
-SQLite supports serializable isolation by default. Writers block other writers, but readers never block.
+SQLite 默认支持可序列化隔离。写入操作会阻塞其他写入操作，但读取操作永远不会阻塞。
 
 ---
 
-## 9. Python Integration
+## 9. Python 集成
 
-### Connection Basics
+### 连接基础
 
 ```python
 import sqlite3
 
-# Context manager (commits on success, but doesn't close!)
+# 上下文管理器（成功时提交，但不会关闭！）
 with sqlite3.connect("habits.db") as conn:
     cursor = conn.cursor()
     cursor.execute("SELECT * FROM habits")
     rows = cursor.fetchall()
 
-# Explicit close
+# 显式关闭
 conn = sqlite3.connect("habits.db")
 try:
-    # ... operations
+    # ... 操作
     conn.commit()
 finally:
     conn.close()
 ```
 
-### Parameterized Queries (SQL Injection Prevention)
+### 参数化查询（防止 SQL 注入）
 
 ```python
-# Question mark placeholders
+# 问号占位符
 cursor.execute(
     "INSERT INTO habits (name, description) VALUES (?, ?)",
     (name, description)
 )
 
-# Named placeholders
+# 命名占位符
 cursor.execute(
     "INSERT INTO habits (name, description) VALUES (:name, :desc)",
     {"name": name, "desc": description}
 )
 
-# For IN clauses
+# 用于 IN 子句
 ids = [1, 2, 3]
 placeholders = ",".join("?" * len(ids))
 cursor.execute(f"SELECT * FROM habits WHERE id IN ({placeholders})", ids)
 
-# NEVER do string formatting!
-# BAD: cursor.execute(f"SELECT * FROM habits WHERE name = '{user_input}'")
+# 永远不要使用字符串格式化！
+# 不好：cursor.execute(f"SELECT * FROM habits WHERE name = '{user_input}'")
 ```
 
-### Row Factories
+### 行工厂
 
 ```python
-# Return rows as dictionaries
+# 将行作为字典返回
 conn.row_factory = sqlite3.Row
 cursor = conn.cursor()
 cursor.execute("SELECT * FROM habits")
 row = cursor.fetchone()
-print(row["name"])  # Access by column name
-print(row[0])       # Access by index
-print(dict(row))    # Convert to dict
+print(row["name"])  # 按列名访问
+print(row[0])       # 按索引访问
+print(dict(row))    # 转换为字典
 ```
 
-### Batch Operations
+### 批量操作
 
 ```python
-# executemany for bulk inserts
+# executemany 用于批量插入
 data = [("Exercise",), ("Reading",), ("Meditation",)]
 cursor.executemany("INSERT INTO habits (name) VALUES (?)", data)
 
-# Wrap in transaction for performance
+# 为提高性能而包装在事务中
 conn.execute("BEGIN")
 try:
     for chunk in chunks(large_data, 1000):
@@ -692,77 +692,77 @@ except:
 
 ---
 
-## 10. Performance Tuning
+## 10. 性能调优
 
-### Essential PRAGMA Settings
+### 必需的 PRAGMA 设置
 
 ```sql
--- Run on every connection
-PRAGMA journal_mode = WAL;        -- Write-ahead logging (better concurrency)
-PRAGMA synchronous = NORMAL;      -- Safe with WAL, faster than FULL
-PRAGMA foreign_keys = ON;         -- Enable foreign key enforcement
-PRAGMA cache_size = -64000;       -- 64MB page cache (negative = KB)
-PRAGMA temp_store = MEMORY;       -- Store temp tables in RAM
-PRAGMA mmap_size = 268435456;     -- 256MB memory-mapped I/O
+-- 每次连接时运行
+PRAGMA journal_mode = WAL;        -- 预写日志（更好的并发性）
+PRAGMA synchronous = NORMAL;      -- 与 WAL 一起使用安全，比 FULL 更快
+PRAGMA foreign_keys = ON;         -- 启用外键强制
+PRAGMA cache_size = -64000;       -- 64MB 页面缓存（负数 = KB）
+PRAGMA temp_store = MEMORY;       -- 将临时表存储在内存中
+PRAGMA mmap_size = 268435456;     -- 256MB 内存映射 I/O
 
--- Run periodically or before closing
-PRAGMA optimize;                   -- Optimize query planner statistics
+-- 定期或关闭前运行
+PRAGMA optimize;                   -- 优化查询计划器统计信息
 ```
 
-### PRAGMA Reference
+### PRAGMA 参考
 
-| PRAGMA | Purpose | Recommended |
+| PRAGMA | 目的 | 推荐值 |
 |--------|---------|-------------|
-| `journal_mode` | Transaction journaling | `WAL` |
-| `synchronous` | Disk sync frequency | `NORMAL` (with WAL) |
-| `foreign_keys` | FK enforcement | `ON` |
-| `cache_size` | Page cache size | `-64000` (64MB) |
-| `temp_store` | Temp table location | `MEMORY` |
-| `busy_timeout` | Lock wait time (ms) | `5000` |
+| `journal_mode` | 事务日志 | `WAL` |
+| `synchronous` | 磁盘同步频率 | `NORMAL`（配合 WAL） |
+| `foreign_keys` | 外键强制 | `ON` |
+| `cache_size` | 页面缓存大小 | `-64000`（64MB） |
+| `temp_store` | 临时表位置 | `MEMORY` |
+| `busy_timeout` | 锁等待时间（毫秒） | `5000` |
 
-### WAL Mode
+### WAL 模式
 
 ```sql
 PRAGMA journal_mode = WAL;
 ```
 
-**Benefits**:
-- Readers don't block writers
-- Writers don't block readers
-- Better crash recovery
-- Faster for most workloads
+**优点**：
+- 读取器不会阻塞写入器
+- 写入器不会阻塞读取器
+- 更好的崩溃恢复
+- 对于大多数工作负载都更快
 
-**Limitations**:
-- Doesn't work on network filesystems
-- Creates `-wal` and `-shm` files alongside database
+**限制**：
+- 不适用于网络文件系统
+- 会在数据库旁边创建 `-wal` 和 `-shm` 文件
 
-### Database Maintenance
+### 数据库维护
 
 ```sql
--- Defragment and optimize (run during maintenance windows)
+-- 碎片整理和优化（在维护窗口期间运行）
 VACUUM;
 
--- Update statistics for query planner
+-- 更新查询计划器的统计信息
 ANALYZE;
 
--- Rebuild indexes
+-- 重建索引
 REINDEX;
 
--- Check database integrity
+-- 检查数据库完整性
 PRAGMA integrity_check;
 ```
 
 ---
 
-## 11. Backup & Recovery
+## 11. 备份与恢复
 
-### Safe Backup Methods
+### 安全的备份方法
 
 ```python
 import sqlite3
 
 def backup_database(source_path: str, dest_path: str):
-    """Safe backup using SQLite's backup API."""
+    """使用 SQLite 的备份 API 进行安全备份。"""
     source = sqlite3.connect(source_path)
     dest = sqlite3.connect(dest_path)
 
@@ -774,18 +774,18 @@ def backup_database(source_path: str, dest_path: str):
 ```
 
 ```sql
--- VACUUM INTO creates a vacuumed copy (SQLite 3.27.0+)
+-- VACUUM INTO 创建真空副本（SQLite 3.27.0+）
 VACUUM INTO '/path/to/backup.db';
 ```
 
-### What NOT to Do
+### 不应该做的事情
 
 ```bash
-# NEVER use cp/copy on a live database - not transactionally safe!
-cp database.db backup.db  # BAD!
+# 永远不要在活动数据库上使用 cp/copy - 不是事务安全的！
+cp database.db backup.db  # 不好！
 ```
 
-### Litestream (Continuous Backup)
+### Litestream（持续备份）
 
 ```yaml
 # litestream.yml
@@ -796,62 +796,62 @@ dbs:
         sync-interval: 1s
 ```
 
-### Integrity Checking
+### 完整性检查
 
 ```sql
--- Full integrity check
+-- 完整完整性检查
 PRAGMA integrity_check;
 
--- Quick check (faster)
+-- 快速检查（更快）
 PRAGMA quick_check;
 
--- Returns 'ok' if healthy
+-- 如果健康则返回 'ok'
 ```
 
 ---
 
-## 12. Anti-Patterns
+## 12. 反模式
 
-### Configuration Mistakes
+### 配置错误
 
-| Mistake | Solution |
+| 错误 | 解决方案 |
 |---------|----------|
-| Not enabling foreign keys | `PRAGMA foreign_keys=ON` per connection |
-| Using default journal mode | Enable WAL: `PRAGMA journal_mode=WAL` |
-| SQLite on network filesystem | Use local filesystem only |
+| 未启用外键 | 每个连接使用 `PRAGMA foreign_keys=ON` |
+| 使用默认日志模式 | 启用 WAL：`PRAGMA journal_mode=WAL` |
+| SQLite 在网络文件系统上 | 只使用本地文件系统 |
 
-### Schema Mistakes
+### 设计错误
 
-| Mistake | Solution |
+| 错误 | 解决方案 |
 |---------|----------|
-| Storing comma-separated lists | Use proper junction tables |
-| Not indexing foreign keys | Always index FK columns |
-| Over-indexing | Only index frequently queried columns |
-| Using wrong date format | Use ISO 8601: `YYYY-MM-DD` |
+| 存储逗号分隔的列表 | 使用适当的关联表 |
+| 未索引外键 | 始终为外键列创建索引 |
+| 过度索引 | 只为频繁查询的列创建索引 |
+| 使用错误的日期格式 | 使用 ISO 8601：`YYYY-MM-DD` |
 
-### Query Mistakes
+### 查询错误
 
-| Mistake | Solution |
+| 错误 | 解决方案 |
 |---------|----------|
-| `SELECT *` | Select only needed columns |
-| LIKE for date queries | Use date comparisons |
-| Functions on indexed columns | Create expression indexes |
-| Not using EXPLAIN | Analyze slow queries |
+| `SELECT *` | 只选择需要的列 |
+| LIKE 用于日期查询 | 使用日期比较 |
+| 对索引列使用函数 | 创建表达式索引 |
+| 不使用 EXPLAIN | 分析慢查询 |
 
-### Python Mistakes
+### Python 错误
 
-| Mistake | Solution |
+| 错误 | 解决方案 |
 |---------|----------|
-| String formatting SQL | Use parameterized queries |
-| Not closing connections | Use context managers |
-| Creating engine per request | Create once, reuse |
-| Ignoring N+1 queries | Use eager loading |
+| 字符串格式化 SQL | 使用参数化查询 |
+| 未关闭连接 | 使用上下文管理器 |
+| 每次请求创建引擎 | 创建一次，复用 |
+| 忽略 N+1 查询 | 使用预加载 |
 
 ---
 
-## Quick Reference
+## 快速参考
 
-### Connection Setup Template
+### 连接设置模板
 
 ```python
 from sqlalchemy import create_engine, event
@@ -869,20 +869,20 @@ def set_sqlite_pragma(dbapi_connection, connection_record):
     cursor.close()
 ```
 
-### SQLite Date Functions
+### SQLite 日期函数
 
 ```sql
--- Current date/time
+-- 当前日期/时间
 SELECT date('now');                    -- 2025-01-15
 SELECT datetime('now');                -- 2025-01-15 12:30:00
-SELECT strftime('%s', 'now');          -- Unix timestamp
+SELECT strftime('%s', 'now');          -- Unix 时间戳
 
--- Date arithmetic
-SELECT date('now', '-7 days');         -- 7 days ago
-SELECT date('now', '+1 month');        -- 1 month from now
-SELECT date('now', 'start of month');  -- First of current month
+-- 日期运算
+SELECT date('now', '-7 days');         -- 7 天前
+SELECT date('now', '+1 month');        -- 1 个月后
+SELECT date('now', 'start of month');  -- 当月第一天
 
--- Extract parts
+-- 提取部分
 SELECT strftime('%Y', '2025-01-15');   -- 2025
 SELECT strftime('%m', '2025-01-15');   -- 01
 SELECT strftime('%d', '2025-01-15');   -- 15
@@ -890,9 +890,9 @@ SELECT strftime('%d', '2025-01-15');   -- 15
 
 ---
 
-## Resources
+## 资源
 
-- [SQLite Documentation](https://sqlite.org/docs.html)
-- [SQLite When to Use](https://sqlite.org/whentouse.html)
-- [SQLAlchemy 2.0 Documentation](https://docs.sqlalchemy.org/en/20/)
+- [SQLite 文档](https://sqlite.org/docs.html)
+- [SQLite 何时使用](https://sqlite.org/whentouse.html)
+- [SQLAlchemy 2.0 文档](https://docs.sqlalchemy.org/en/20/)
 - [Litestream](https://litestream.io/)
