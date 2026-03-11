@@ -788,7 +788,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 from functools import lru_cache
 
 class Settings(BaseSettings):
-    app_name: str = "习惯追踪器"
+    app_name: str = "Habit Tracker"
     database_url: str = "sqlite:///./habits.db"
     debug: bool = False
     cors_origins: list[str] = ["http://localhost:5173"]
